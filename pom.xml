@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>pl.pwr.student.gogame</groupId>
+  <artifactId>gogame</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <url>https://github.com/BartoszLipinskiSzyb/GoGameTPLab4</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>23</maven.compiler.source>
+    <maven.compiler.target>23</maven.compiler.target>
+  </properties>
+
+  <modules>
+    <module>server</module>
+    <module>client</module>
+  </modules>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>com.github.davidmoten</groupId>
+          <artifactId>plantuml-maven-plugin</artifactId>
+          <version>0.2.14</version>
+          <executions>
+            <execution>
+              <id>generate-diagrams</id>
+              <phase>generate-resources</phase>
+              <goals>
+                <goal>generate</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <sources>
+              <directory>src/main/plantuml</directory>
+              <includes>
+                <include>**/*.puml</include>
+              </includes>
+            </sources>
+            <outputDirectory>target/generated-diagrams</outputDirectory>
+            <formats>
+              <format>png</format>
+              <format>svg</format>
+            </formats>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+</project>

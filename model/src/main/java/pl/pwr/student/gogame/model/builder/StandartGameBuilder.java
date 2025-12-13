@@ -31,9 +31,9 @@ public class StandartGameBuilder extends Builder {
     }
 
     if ((rand.nextInt() % 2) == 1) {
-      return new Game(new Board(boardWidth), player1, player2, ruleSet);
+      return new Game(new Board(boardWidth), player1, player2, ruleSet, rand);
     }
 
-    return new Game(new Board(boardWidth), player2, player1, ruleSet);
+    return new Game(new Board(boardWidth), player2, player1, ruleSet, rand);
   }
 }

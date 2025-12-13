@@ -16,28 +16,34 @@ public abstract class Builder {
   protected int boardWidth;
   protected Random rand;
 
-  public void setPlayer1(Player player1) {
+  public Builder setPlayer1(Player player1) {
     this.player1 = player1;
+    return this;
   }
 
-  public void setPlayer2(Player player2) {
+  public Builder setPlayer2(Player player2) {
     this.player2 = player2;
+    return this;
   }
 
-  public void setRules(RuleSet ruleSet) {
+  public Builder setRules(RuleSet ruleSet) {
     this.ruleSet = ruleSet;
+    return this;
   }
 
-  public void addRule(Rule rule) {
+  public Builder addRule(Rule rule) {
     this.ruleSet.addRule(rule);
+    return this;
   }
 
-  public void setSize(int boardWidth) {
+  public Builder setSize(int boardWidth) {
     this.boardWidth = boardWidth;
+    return this;
   }
 
-  public void setRand(Random rand) {
+  public Builder setRand(Random rand) {
     this.rand = rand;
+    return this;
   }
 
   public abstract Game buildGame() throws PlayersNotSettledException;

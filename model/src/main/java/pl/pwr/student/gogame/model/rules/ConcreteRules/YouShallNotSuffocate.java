@@ -5,7 +5,7 @@ import java.util.List;
 
 import pl.pwr.student.gogame.model.board.Board;
 import pl.pwr.student.gogame.model.board.Stone;
-import pl.pwr.student.gogame.model.commands.Move;
+import pl.pwr.student.gogame.model.commands.CMDMove;
 import pl.pwr.student.gogame.model.rules.ComplexRule;
 import pl.pwr.student.gogame.model.board.Pos;
 
@@ -16,7 +16,7 @@ public class YouShallNotSuffocate extends ComplexRule {
   * Zasada: kamień umiera kiedy nie ma oddechów (proste sprawdzenie czy jakiekolwiek pole wokół jest wolne)
   */
   @Override
-  protected Boolean meetsOwnRule(Board board, Move move) {
+  protected Boolean meetsOwnRule(Board board, CMDMove move) {
     // List positionsToDelete = new ArrayList<Pos>();
 
     // for (int y = 0; board.isInside(0, y); ++y) {
@@ -25,7 +25,7 @@ public class YouShallNotSuffocate extends ComplexRule {
     //       continue;
     //     }
 
-        Stone currentStone = new Stone();
+        Stone currentStone = new Stone(move.isFromBlackPlayer);
         currentStone.resetNeighbourCounters();
 
         for (Integer[] neigh : Board.NEIGHBOURS) {
@@ -57,7 +57,7 @@ public class YouShallNotSuffocate extends ComplexRule {
   }
 
   @Override
-  public Boolean meetsRule(Board board, Move move) {
+  public Boolean meetsRule(Board board, CMDMove move) {
     // TODO: Przyszła implementacja rekurencyjnego sprawdzenia podzasad (wyjątków)
 
     return meetsOwnRule(board, move);

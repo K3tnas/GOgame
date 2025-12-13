@@ -1,4 +1,4 @@
-package pl.pwr.student.gogame.model;
+package pl.pwr.student.gogame.model.board;
 
 public class Board {
     private FieldState[][] fields;
@@ -6,7 +6,7 @@ public class Board {
     public void removeAllStones() {
         for (int i = 0; i < this.fields.length; ++i) {
             for (int j = 0; j < this.fields[0].length; ++j) {
-                this.fields[i][j] = FieldState.EMPTY;
+                this.fields[i][j] = null;
             }
         }
     }

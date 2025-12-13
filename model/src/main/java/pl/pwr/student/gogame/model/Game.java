@@ -4,6 +4,8 @@ import org.apache.commons.text.RandomStringGenerator;
 
 public class Game {
     private Board board;
+    private GameStateMachine gameState;
+
     private String gameCode;
 
     private Server host;
@@ -23,14 +25,22 @@ public class Game {
         return this.gameCode;
     }
 
-    public void randomizeColors() {
-        if (true) {
+    public void startGame() {
 
+    }
+
+    public void randomizeColors() {
+        if (random.nextBoolean()) {
+            // 50% szans
+            Player tmp = players[0];
+            players[0] = players[1];
+            players[1] = tmp;
+            tmp = null;
         }
     }
 
     private String generateGameCode() {
-        return RandomStringGenerator.generate(GAME_CODE_LEN);
+        String alphabet = "";
     }
 
     public Game() {

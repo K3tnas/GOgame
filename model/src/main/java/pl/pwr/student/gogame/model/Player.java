@@ -5,6 +5,6 @@ public class Player {
     private String username;
 
     public Player(String username) {
-
+        
     }
 }

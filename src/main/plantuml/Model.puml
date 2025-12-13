@@ -1,0 +1,67 @@
+@startuml
+package Model {
+
+  class Game {
+  }
+
+  class Player {
+  }
+
+  package States {
+    interface GameState {
+    }
+
+    class WhiteTurn {
+    }
+
+    class BlackTurn {
+    }
+
+    class EndOfGame {
+    }
+
+    GameState <|.. WhiteTurn
+    GameState <|.. BlackTurn
+    GameState <|.. EndOfGame
+  }
+
+  package rules {
+    class RuleSet {
+    }
+
+    interface Iterator {
+    }
+
+    interface Rule {
+    }
+
+    abstract class SimpleRule {
+    }
+
+    abstract class ComplexRule {
+    }
+
+    Rule <|.. SimpleRule
+    Rule <|.. ComplexRule
+    ComplexRule o-->  Rule
+    ComplexRule *-- RuleSet
+    RuleSet *-- Rule
+    RuleSet ..|> Iterator
+  }
+
+  package board {
+    class Board {
+    }
+
+    Enum FieldState {
+    }
+
+    Board *-- FieldState
+  }
+
+  Game  *-- RuleSet
+  Game  *-- Board
+  Game *--> GameState
+  Game *-- Player
+}
+@enduml

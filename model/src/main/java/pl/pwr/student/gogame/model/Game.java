@@ -1,49 +1,51 @@
 package pl.pwr.student.gogame.model;
 
+import pl.pwr.student.gogame.model.rules.RuleSet;
+import pl.pwr.student.gogame.model.board.Board;
+import pl.pwr.student.gogame.model.states.GameState;
+import pl.pwr.student.gogame.model.commands.Command;
+
 import org.apache.commons.text.RandomStringGenerator;
 
 public class Game {
-    private Board board;
-    private GameStateMachine gameState;
+  private Board board;
+  private GameState gameState;
 
-    private String gameCode;
+  private String gameCode;
 
-    private Server host;
+  private Server host;
 
-    private Player[] players = new Player[2];
+  private static final int GAME_CODE_LEN = 10;
 
-    // TODO: wspólny random dla całego serwera
-    private Random random = new Random();
+  public Game(Board board, Player blackPlayer, Player whitePlayer, RuleSet rules) {
+    super();
+  }
 
-    private static final int GAME_CODE_LEN = 10;
+  public String getGameCode() {
+    return this.gameCode;
+  }
 
-    public void setBoardSize(int width) {
-        this.board = new Board(width);
+  public void startGame() {
+
+  }
+
+  public void execCommand(Command command) {
+    switch (command.commandType) {
+      case MOVE:
+        break;
+
+      default:
+        break;
     }
+  }
 
-    public String getGameCode() {
-        return this.gameCode;
-    }
+  private String generateGameCode() {
+    String alphabet = "";
+  }
 
-    public void startGame() {
+  public Game() {
+    this.gameCode = generateGameCode();
+  }
 
-    }
-
-    public void randomizeColors() {
-        if (random.nextBoolean()) {
-            // 50% szans
-            Player tmp = players[0];
-            players[0] = players[1];
-            players[1] = tmp;
-            tmp = null;
-        }
-    }
-
-    private String generateGameCode() {
-        String alphabet = "";
-    }
-
-    public Game() {
-        this.gameCode = generateGameCode();
-    }
+  private void execMove() 
 }

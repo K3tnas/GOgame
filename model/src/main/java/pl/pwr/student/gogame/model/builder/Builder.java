@@ -1,11 +1,20 @@
 package pl.pwr.student.gogame.model.builder;
 
+import java.util.Random;
+
+import pl.pwr.student.gogame.model.Game;
 import pl.pwr.student.gogame.model.Player;
+import pl.pwr.student.gogame.model.rules.Rule;
+import pl.pwr.student.gogame.model.rules.RuleSet;
+import pl.pwr.student.gogame.model.exceptions.PlayersNotSettledException;
 
 public abstract class Builder {
 
-  private Player player1;
-  private Player player2;
+  protected Player player1;
+  protected Player player2;
+  protected RuleSet ruleSet;
+  protected int boardWidth;
+  protected Random rand;
 
   public void setPlayer1(Player player1) {
     this.player1 = player1;
@@ -16,12 +25,20 @@ public abstract class Builder {
   }
 
   public void setRules(RuleSet ruleSet) {
-
+    this.ruleSet = ruleSet;
   }
 
   public void addRule(Rule rule) {
-    this.ruleSet.add(rule);
+    this.ruleSet.addRule(rule);
   }
 
-  public abstract Game buildGame();
+  public void setSize(int boardWidth) {
+    this.boardWidth = boardWidth;
+  }
+
+  public void setRand(Random rand) {
+    this.rand = rand;
+  }
+
+  public abstract Game buildGame() throws PlayersNotSettledException;
 }

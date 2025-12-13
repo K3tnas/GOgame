@@ -44,7 +44,7 @@ package Model {
 
     Rule <|.. SimpleRule
     Rule <|.. ComplexRule
-    ComplexRule o-->  Rule
+    ComplexRule *-->  Rule
     ComplexRule *-- RuleSet
     RuleSet *-- Rule
     RuleSet ..|> Iterator
@@ -60,7 +60,7 @@ package Model {
     Board *-- FieldState
   }
   
-  package commends {
+  package commands {
     abstract Command {
     }
     
@@ -68,12 +68,19 @@ package Model {
     }
     
     MoveCommand --|> Command
-    }
+  }
+  
+  package builder {
+    abstract Builder {}
+    class StandartBuilder {}
+    StandartBuilder --|> Builder
+  }
 
   Game  o-- RuleSet
   Game  *-- Board
   Game *--> GameState
   Game *-- Player
   Game --> Command
+  Game --> Builder
 }
 @enduml

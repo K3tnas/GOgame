@@ -7,13 +7,16 @@ import pl.pwr.student.gogame.model.board.Board;
 import pl.pwr.student.gogame.model.board.Stone;
 import pl.pwr.student.gogame.model.commands.CMDMove;
 import pl.pwr.student.gogame.model.rules.ComplexRule;
-import pl.pwr.student.gogame.model.board.Pos;
 
-public class YouShallNotSuffocate extends ComplexRule {
+public class YouShallNotSuicide extends ComplexRule {
 
 
   /*
-  * Zasada: kamień umiera kiedy nie ma oddechów (proste sprawdzenie czy jakiekolwiek pole wokół jest wolne)
+  * Zasada: kamień nie może być postawiony, jeśli zostałby sam od razu zbity
+  *
+  * TODO: dodanie zasady, albo rozwinięcie poniższej w taki sposób, aby rekurencyjnie
+  * przechodzić po łańcuchu i sprawdzać, czy któryś z kamieni w nim ma co najmniej 1
+  * oddech - jeśli nie, cały łańcuch jest zbierany
   */
   @Override
   protected Boolean meetsOwnRule(Board board, CMDMove move) {

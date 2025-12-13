@@ -32,22 +32,21 @@ import java.util.Arrays;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 
-import pl.pwr.student.gogame.server.gameengine.Board;
+import pl.pwr.student.gogame.model.board.Board;
 
 public class Server {
 
   void main(String[] args) throws Exception {
-    Board board = new Board(19);
-    // try (var listener = new ServerSocket(58901)) {
-    //   IO.println("Tic Tac Toe Server is Running...");
-    //   try (var pool = Executors.newVirtualThreadPerTaskExecutor()) {
-    //     while (true) {
-    //       Game game = new Game();
-    //       pool.execute(game.new Player(listener.accept(), 'X'));
-    //       pool.execute(game.new Player(listener.accept(), 'O'));
-    //     }
-    //   }
-    // }
+    try (var listener = new ServerSocket(58901)) {
+      IO.println("Tic Tac Toe Server is Running...");
+      try (var pool = Executors.newVirtualThreadPerTaskExecutor()) {
+        while (true) {
+          Game game = new Game();
+          pool.execute(game.new Player(listener.accept(), 'X'));
+          pool.execute(game.new Player(listener.accept(), 'O'));
+        }
+      }
+    }
   }
 
   class Game {

@@ -1,3 +1,0 @@
-### Model
-![Model](Model.png)
-

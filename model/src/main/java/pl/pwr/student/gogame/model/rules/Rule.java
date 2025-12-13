@@ -1,5 +1,10 @@
-package pl.pwr.student.gogame.model;
+package pl.pwr.student.gogame.model.rules;
+
+import pl.pwr.student.gogame.model.board.Board;
+import pl.pwr.student.gogame.model.commands.Move;
 
 public interface Rule {
+
+  public boolean meetsRule(Board board, Move move);
 
 }

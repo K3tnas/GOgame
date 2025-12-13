@@ -13,8 +13,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>23</maven.compiler.source>
-    <maven.compiler.target>23</maven.compiler.target>
+    <maven.compiler.source>24</maven.compiler.source>
+    <maven.compiler.target>24</maven.compiler.target>
   </properties>
 
   <modules>
@@ -23,37 +23,40 @@
   </modules>
 
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>com.github.davidmoten</groupId>
-          <artifactId>plantuml-maven-plugin</artifactId>
-          <version>0.2.14</version>
-          <executions>
-            <execution>
-              <id>generate-diagrams</id>
-              <phase>generate-resources</phase>
-              <goals>
-                <goal>generate</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <sources>
-              <directory>src/main/plantuml</directory>
-              <includes>
-                <include>**/*.puml</include>
-              </includes>
-            </sources>
-            <outputDirectory>target/generated-diagrams</outputDirectory>
-            <formats>
-              <format>png</format>
-              <format>svg</format>
-            </formats>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>com.github.davidmoten</groupId>
+        <artifactId>plantuml-maven-plugin</artifactId>
+        <version>0.2.14</version>
+        <executions>
+          <execution>
+            <id>generate-diagrams</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <sources>
+            <directory>${basedir}/src/main/plantuml</directory>
+            <includes>
+              <include>**/*.puml</include>
+            </includes>
+            <excludes>
+              <exclude>**/ignore-me.puml</exclude>
+            </excludes>
+          </sources>
+          <outputDirectory>assets/diagrams</outputDirectory>
+          <formats>
+            <format>png</format>
+            <format>svg</format>
+          </formats>
+          <preserveDirectoryStructure>false</preserveDirectoryStructure>
+          <generateMarkdownIndex>true</generateMarkdownIndex>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 
 </project>

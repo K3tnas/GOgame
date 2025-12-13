@@ -1,4 +1,5 @@
 @startuml
+Scale 1.5
 package Model {
 
   class Game {
@@ -58,10 +59,21 @@ package Model {
 
     Board *-- FieldState
   }
+  
+  package commends {
+    abstract Command {
+    }
+    
+    class MoveCommand {
+    }
+    
+    MoveCommand --|> Command
+    }
 
-  Game  *-- RuleSet
+  Game  o-- RuleSet
   Game  *-- Board
   Game *--> GameState
   Game *-- Player
+  Game --> Command
 }
 @enduml

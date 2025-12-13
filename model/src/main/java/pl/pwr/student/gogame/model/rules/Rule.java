@@ -5,6 +5,6 @@ import pl.pwr.student.gogame.model.commands.Move;
 
 public interface Rule {
 
-  public boolean meetsRule(Board board, Move move);
+  public Boolean meetsRule(Board board, Move move);
 
 }

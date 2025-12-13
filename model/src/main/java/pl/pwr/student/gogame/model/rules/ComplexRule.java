@@ -10,7 +10,7 @@ public abstract class ComplexRule implements Rule {
     this.subRuleSet = new RuleSet();
   }
 
-  protected abstract boolean meetsOwnRule(Board board, Move move);
+  protected abstract Boolean meetsOwnRule(Board board, Move move);
 
-  public abstract boolean meetsRule(Board board, Move move);
+  public abstract Boolean meetsRule(Board board, Move move);
 }

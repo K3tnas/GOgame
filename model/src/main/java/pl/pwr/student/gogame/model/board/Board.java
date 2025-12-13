@@ -1,18 +1,54 @@
 package pl.pwr.student.gogame.model.board;
 
 public class Board {
-    private FieldState[][] fields;
+    private Stone[][] fields;
+    
+    public Boolean isInside(Pos pos) {
+        return isInside(pos.x, pos.y);
+    }
+
+    public Boolean isInside(int x, int y) {
+        return 0 <= x && x < this.getWidth() &&
+               0 <= y && y < this.getHeight();
+    }
+
+    public static final Integer[][] NEIGHBOURS = {
+        { 1, 0 },
+        { 0, 1 },
+        { -1, 0 },
+        { 0, -1 }
+    };
 
     public void removeAllStones() {
-        for (int i = 0; i < this.fields.length; ++i) {
-            for (int j = 0; j < this.fields[0].length; ++j) {
-                this.fields[i][j] = null;
+        for (int y = 0; y < this.getHeight(); ++y) {
+            for (int x = 0; x < this.getWidth(); ++x) {
+                this.removeStone(x, y);
             }
         }
     }
 
+    public void removeStone(int x, int y) {
+        this.fields[y][x] = null;
+    }
+
+    public Stone getStone(int x, int y) {
+        return this.fields[y][x];
+    }
+
+    public void setStone(int x, int y, Boolean isBlack) {
+        this.fields[y][x] = new Stone(isBlack);
+    }
+
+    public Integer getWidth() {
+        return fields[0].length;
+    }
+    
+    public Integer getHeight() {
+        return fields.length;
+    }
+
     public Board(int width) {
-        this.fields = new FieldState[width][width];
+        this.fields = new Stone[width][width];
         this.removeAllStones();
     }
 }

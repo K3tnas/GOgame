@@ -25,7 +25,7 @@ public class Game {
 
   private RuleSet rules;
 
-  private static final int GAME_CODE_LEN = 10;
+  public static final int GAME_CODE_LEN = 10;
 
   public Game(Board board, Player blackPlayer, Player whitePlayer, RuleSet rules, Random rand) {
     this.board = board;
@@ -34,6 +34,8 @@ public class Game {
     this.rules = rules;
 
     this.rand = rand;
+
+    this.gameCode = generateGameCode();
   }
 
   public String getGameCode() {
@@ -60,18 +62,16 @@ public class Game {
   }
 
   private String generateGameCode() {
-    String consonants = "BCDFGHJKLMNPRSTWZ";
+    String consonants = "BCDFGHJKLMNPRST";
     String vowels = "AEIOU";
 
     String result = "";
 
     for (int i = 0; i < GAME_CODE_LEN/2; ++i) {
-      result += consonants.charAt(rand.nextInt(consonants.length())) + vowels.charAt(rand.nextInt(vowels.length()));
+      result += "" + consonants.charAt(rand.nextInt(consonants.length())) + vowels.charAt(rand.nextInt(vowels.length()));
     }
-  
-    this.gameCode = result;
 
-    return this.gameCode;
+    return result;
   }
 
   public Game() {

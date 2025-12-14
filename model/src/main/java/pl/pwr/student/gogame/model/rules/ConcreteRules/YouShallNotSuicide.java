@@ -1,8 +1,5 @@
 package pl.pwr.student.gogame.model.rules.ConcreteRules;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import pl.pwr.student.gogame.model.board.Board;
 import pl.pwr.student.gogame.model.board.Stone;
 import pl.pwr.student.gogame.model.commands.CMDMove;

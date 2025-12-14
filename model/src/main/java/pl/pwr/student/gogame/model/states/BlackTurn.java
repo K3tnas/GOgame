@@ -19,7 +19,7 @@ public class BlackTurn extends GameState {
         }
 
         if (rules.meetsRules(board, move)) {
-            contextManipulation.setState(State.WHITE_TURN.idx);
+            contextManipulation.setState(State.WHITE_TURN);
         }
     }
 
@@ -29,6 +29,6 @@ public class BlackTurn extends GameState {
             return;
         }
 
-        contextManipulation.setState(State.WHITE_TURN.idx);
+        contextManipulation.setState(State.WHITE_TURN);
     }
 }

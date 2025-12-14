@@ -16,7 +16,6 @@ import pl.pwr.student.gogame.model.commands.Command;
 
 public class Game {
   private Board board;
-  private GameState gameState;
 
   private final String gameCode;
 
@@ -32,6 +31,7 @@ public class Game {
   private final RuleSet rules;
 
   private GameState[] gameStates;
+  private State gameState;
 
   public static final int GAME_CODE_LEN = 10;
 
@@ -60,13 +60,13 @@ public class Game {
     this.gameStates[State.WHITE_TURN.idx] = new WhiteTurn(this.rules, this::setState);
     this.gameStates[State.END_OF_GAME.idx] = new EndOfGame(this.rules, this::setState);
     // grę rozpoczyna gracz czarny
-    this.gameState = gameStates[State.BLACK_TURN.idx];
+    this.gameState = State.BLACK_TURN;
     this.moveCount = 0;
   }
 
-  private void setState(Integer stateIdx) {
-    if (this.gameState != gameStates[stateIdx]) {
-      this.gameState = gameStates[stateIdx];
+  private void setState(State state) {
+    if (!this.gameState.equals(state)) {
+      this.gameState = state;
       this.moveCount++;
     }
   }
@@ -74,11 +74,11 @@ public class Game {
   public void execCommand(Command command) {
     switch (command.commandType) {
       case MOVE:
-        this.gameState.makeMove(this.board, (CMDMove) command);
+        this.gameStates[gameState.idx].makeMove(this.board, (CMDMove) command);
         break;
 
       case PASS:
-        this.gameState.pass((CMDPass) command);
+        this.gameStates[gameState.idx].pass((CMDPass) command);
         break;
 
       default:
@@ -90,21 +90,8 @@ public class Game {
     return this.moveCount;
   }
 
-  // Brzydki kod na potrzeby testów
   public State getState() {
-    if (this.gameStates[State.BLACK_TURN.idx].equals(this.gameState)) {
-      return State.BLACK_TURN;
-    }
-    
-    if (this.gameStates[State.WHITE_TURN.idx].equals(this.gameState)) {
-      return State.WHITE_TURN;
-    }
-    
-    if (this.gameStates[State.END_OF_GAME.idx].equals(this.gameState)) {
-      return State.BLACK_TURN;
-    }
-
-    return null;
+    return this.gameState;
   }
 
   private String generateGameCode() {

@@ -28,7 +28,7 @@ public class YouShallNotSuicide extends ComplexRule {
     //       continue;
     //     }
 
-        Stone currentStone = new Stone(move.isFromBlackPlayer);
+        Stone currentStone = new Stone(move.isFromBlackPlayer, board.getNeighbourFieldsCount(move.x, move.y));
         currentStone.resetNeighbourCounters();
 
         for (Integer[] neigh : Board.NEIGHBOURS) {

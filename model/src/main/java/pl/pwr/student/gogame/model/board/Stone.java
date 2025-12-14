@@ -12,7 +12,7 @@ public class Stone {
     }
 
     public void incAlly() {
-        if (this.allyCount == 4) {
+        if (this.allyCount + this.enemyCount == this.neighbourFields) {
             return;
         }
 
@@ -20,11 +20,11 @@ public class Stone {
     }
 
     public void incEnemy() {
-        if (this.enemyCount == 4) {
+        if (this.allyCount + this.enemyCount == this.neighbourFields) {
             return;
         }
 
-        ++this.allyCount;
+        ++this.enemyCount;
     }
 
     public Integer breathCount() {

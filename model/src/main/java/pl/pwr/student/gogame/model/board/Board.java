@@ -47,7 +47,7 @@ public class Board {
         return fields.length;
     }
 
-    private Integer getNeighbourFieldsCount(int x, int y) {
+    public Integer getNeighbourFieldsCount(int x, int y) {
         int count = 0;
         for (Integer[] neigh : NEIGHBOURS) {
             if (isInside(x + neigh[0], y + neigh[1])) {

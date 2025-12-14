@@ -95,8 +95,20 @@ public class Game {
     return this.moveCount;
   }
 
+  public int getBlackPlayerId() {
+    return blackPlayer.getId();
+  }
+
+  public int getWhitePlayerId() {
+    return whitePlayer.getId();
+  }
+
   public State getState() {
     return this.gameState;
+  }
+
+  public void setBoard(Board board) {
+    this.board = board;
   }
 
   private String generateGameCode() {

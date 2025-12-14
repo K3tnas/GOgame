@@ -1,18 +1,34 @@
 package pl.pwr.student.gogame.model.states;
 
 import pl.pwr.student.gogame.model.board.Board;
-import pl.pwr.student.gogame.model.commands.Command;
+import pl.pwr.student.gogame.model.commands.CMDMove;
+import pl.pwr.student.gogame.model.commands.CMDPass;
+import pl.pwr.student.gogame.model.rules.RuleSet;
 
-public class BlackTurn implements GameState {
-    @Override
-    public GameState makeMove(Board board, Command move) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'makeMove'");
+public class BlackTurn extends GameState {
+
+    public BlackTurn(RuleSet rules, Board board, ContextManipulation contextManipulation) {
+        super(rules, board, contextManipulation);
+        //TODO Auto-generated constructor stub
     }
 
     @Override
-    public GameState pass(Board board, Command pass) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'pass'");
+    public void makeMove(CMDMove move) {
+        if (!move.isFromBlackPlayer) {
+            return;
+        }
+
+        if (rules.meetsRules(this.board, move)) {
+            contextManipulation.setState(State.WHITE_TURN.idx);
+        }
+    }
+
+    @Override
+    public void pass(CMDPass pass) {
+        if (!pass.isFromBlackPlayer) {
+            return;
+        }
+
+        contextManipulation.setState(State.WHITE_TURN.idx);
     }
 }

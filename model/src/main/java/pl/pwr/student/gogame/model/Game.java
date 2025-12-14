@@ -22,6 +22,8 @@ public class Game {
 
   private Random rand;
 
+  private Integer moveCount;
+
   // private Server host;
 
   private Player blackPlayer;
@@ -29,9 +31,6 @@ public class Game {
 
   private RuleSet rules;
 
-  public static final Integer WHITE_TURN_STATE_IDX = 0;
-  public static final Integer BLACK_TURN_STATE_IDX = 1;
-  public static final Integer END_OF_GAME_STATE_IDX = 2;
   private GameState[] gameStates;
 
   public static final int GAME_CODE_LEN = 10;
@@ -61,11 +60,15 @@ public class Game {
     this.gameStates[State.WHITE_TURN.idx] = new WhiteTurn(this.rules, this.board, this::setState);
     this.gameStates[State.END_OF_GAME.idx] = new EndOfGame(this.rules, this.board, this::setState);
     // grę rozpoczyna gracz czarny
-    this.setState(BLACK_TURN_STATE_IDX);
+    this.moveCount = 0;
+    this.gameState = gameStates[State.BLACK_TURN.idx];
   }
 
-  public void setState(Integer stateIdx) {
-    this.gameState = gameStates[stateIdx];
+  private void setState(Integer stateIdx) {
+    if (this.gameState != gameStates[stateIdx]) {
+      this.gameState = gameStates[stateIdx];
+      this.moveCount++;
+    }
   }
 
   public void execCommand(Command command) {
@@ -81,6 +84,10 @@ public class Game {
       default:
         break;
     }
+  }
+
+  public Integer getMoveCount() {
+    return this.moveCount;
   }
 
   private String generateGameCode() {

@@ -12,16 +12,15 @@ public class EndOfGame extends GameState {
         //TODO Auto-generated constructor stub
     }
 
+    // Dojście do EndOfGame oznacza koniec działania maszyny stanów gry
+    // Metody makeMove i pass celowo nic nie robią
+
     @Override
     public void makeMove(CMDMove move) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'makeMove'");
     }
 
     @Override
     public void pass(CMDPass pass) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'pass'");
     }
 
 }

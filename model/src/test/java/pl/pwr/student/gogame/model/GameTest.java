@@ -10,7 +10,6 @@ import pl.pwr.student.gogame.model.builder.GameBuilder;
 import pl.pwr.student.gogame.model.commands.CMDMove;
 import pl.pwr.student.gogame.model.commands.CMDPass;
 import pl.pwr.student.gogame.model.exceptions.PlayersNotSettledException;
-import pl.pwr.student.gogame.model.rules.RuleSet;
 import pl.pwr.student.gogame.model.rules.ConcreteRules.YouShallNotSuicide;
 
 public class GameTest {
@@ -23,7 +22,19 @@ public class GameTest {
     }
 
     @Test
-    public void gameStateMachineTest() {
+    public void moveCountingTest() {
+        Game g = createGameForTests();
+        g.startGame();
+
+        CMDMove cmd1 = new CMDMove(0, 0, true);
+        g.execCommand(cmd1);
+        CMDPass cmd2 = new CMDPass(false);
+        g.execCommand(cmd2);
+
+        assertEquals((Integer) 2, g.getMoveCount());
+    }
+
+    private Game createGameForTests() {
         GameBuilder gb = new GameBuilder();
 
         Player p1 = new Player("Alice");
@@ -42,18 +53,9 @@ public class GameTest {
 
         try {
             g = gb.buildGame();
+            return g;
         } catch (PlayersNotSettledException e) {
-            assertEquals("Gracze nie są ustawieni, nie pownien test nigdy tutaj wejść", "a jednak wszedł");
-            return;
+            return null;
         }
-
-        g.startGame();
-
-        CMDMove cmd1 = new CMDMove(0, 0, true);
-        g.execCommand(cmd1);
-        CMDPass cmd2 = new CMDPass(false);
-        g.execCommand(cmd2);
-
-        assertEquals((Integer) 2, g.getMoveCount());
     }
 }

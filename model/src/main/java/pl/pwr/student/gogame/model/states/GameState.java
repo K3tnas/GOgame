@@ -10,6 +10,9 @@ public abstract class GameState {
   protected Board board;
   protected ContextManipulation contextManipulation;
 
+  // TODO: dopisanie metod wywoływanych na wejściu do stanu
+  // Na przykład przy wejściu do stanu EndOfGame ma być wywołane liczenie punktów
+
   public abstract void makeMove(CMDMove move);
   public abstract void pass(CMDPass pass);
 

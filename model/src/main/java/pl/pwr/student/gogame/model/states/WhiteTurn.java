@@ -14,14 +14,21 @@ public class WhiteTurn extends GameState {
 
     @Override
     public void makeMove(CMDMove move) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'makeMove'");
+        if (move.isFromBlackPlayer) {
+            return;
+        }
+
+        if (rules.meetsRules(this.board, move)) {
+            contextManipulation.setState(State.BLACK_TURN.idx);
+        }
     }
 
     @Override
     public void pass(CMDPass pass) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'pass'");
-    }
+        if (pass.isFromBlackPlayer) {
+            return;
+        }
 
+        contextManipulation.setState(State.WHITE_TURN.idx);
+    }
 }

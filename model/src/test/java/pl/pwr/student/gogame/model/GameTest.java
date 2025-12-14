@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import pl.pwr.student.gogame.model.builder.GameBuilder;
 import pl.pwr.student.gogame.model.builder.StandardGameBuilder;
-import pl.pwr.student.gogame.model.commands.CMDMove;
+import pl.pwr.student.gogame.model.commands.CMDPut;
 import pl.pwr.student.gogame.model.commands.CMDPass;
 import pl.pwr.student.gogame.model.commands.Command;
 import pl.pwr.student.gogame.model.exceptions.PlayersNotSettledException;
@@ -31,7 +31,7 @@ public class GameTest {
     assertEquals(g.getState().idx, State.BLACK_TURN.idx);
     assertEquals((Integer) 0, g.getMoveCount());
 
-    Command cmd1 = new CMDPass(true);
+    Command cmd1 = new CMDPass(1234);
     g.execCommand(cmd1);
     assertEquals(g.getState().idx, State.WHITE_TURN.idx);
     assertEquals((Integer) 1, g.getMoveCount());
@@ -41,12 +41,12 @@ public class GameTest {
     assertEquals(g.getState().idx, State.WHITE_TURN.idx);
     assertEquals((Integer) 1, g.getMoveCount());
 
-    Command cmd2 = new CMDMove(0, 0, false);
+    Command cmd2 = new CMDPut(0, 0, 1234);
     g.execCommand(cmd2);
     assertEquals(g.getState().idx, State.BLACK_TURN.idx);
     assertEquals((Integer) 2, g.getMoveCount());
 
-    Command cmd3 = new CMDMove(0, 1, true);
+    Command cmd3 = new CMDPut(0, 1, 1234);
     g.execCommand(cmd3);
     assertEquals(g.getState().idx, State.WHITE_TURN.idx);
     assertEquals((Integer) 3, g.getMoveCount());
@@ -55,8 +55,8 @@ public class GameTest {
   private Game createGameForTests() {
     GameBuilder gb = new StandardGameBuilder();
 
-    Player p1 = new Player("Alice");
-    Player p2 = new Player("Bob");
+    Player p1 = new Player("Alice", 1234);
+    Player p2 = new Player("Bob", 4321);
     gb.setPlayer1(p1).setPlayer2(p2);
 
     Game g;

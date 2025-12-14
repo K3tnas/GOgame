@@ -6,6 +6,7 @@ import pl.pwr.student.gogame.model.Game;
 import pl.pwr.student.gogame.model.board.Board;
 import pl.pwr.student.gogame.model.rules.RuleSet;
 import pl.pwr.student.gogame.model.rules.ConcreteRules.YouShallNotSuicide;
+import pl.pwr.student.gogame.model.rules.ConcreteRules.YouShallPlaceStoneOnlyOnEmptyPlace;
 import pl.pwr.student.gogame.model.exceptions.PlayersNotSettledException;
 
 public class StandardGameBuilder extends GameBuilder {
@@ -16,6 +17,7 @@ public class StandardGameBuilder extends GameBuilder {
   static {
     STANDARD_RULE_SET = new RuleSet();
     STANDARD_RULE_SET.addRule(new YouShallNotSuicide());
+    STANDARD_RULE_SET.addRule(new YouShallPlaceStoneOnlyOnEmptyPlace());
   }
 
   @Override

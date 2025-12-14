@@ -10,7 +10,7 @@ import pl.pwr.student.gogame.model.states.EndOfGame;
 import pl.pwr.student.gogame.model.states.GameState;
 import pl.pwr.student.gogame.model.states.State;
 import pl.pwr.student.gogame.model.states.WhiteTurn;
-import pl.pwr.student.gogame.model.commands.CMDMove;
+import pl.pwr.student.gogame.model.commands.CMDPut;
 import pl.pwr.student.gogame.model.commands.CMDPass;
 import pl.pwr.student.gogame.model.commands.Command;
 
@@ -35,6 +35,8 @@ public class Game {
 
   public static final int GAME_CODE_LEN = 10;
 
+  private boolean[] passMemory = { false, false };
+
   public Game(Board board, Player blackPlayer, Player whitePlayer, RuleSet rules, Random rand) {
     this.board = board;
     this.whitePlayer = whitePlayer;
@@ -56,9 +58,12 @@ public class Game {
 
   private void initializeGameStateMachine() {
     this.gameStates = new GameState[3];
-    this.gameStates[State.BLACK_TURN.idx] = new BlackTurn(this.rules, this::setState);
-    this.gameStates[State.WHITE_TURN.idx] = new WhiteTurn(this.rules, this::setState);
-    this.gameStates[State.END_OF_GAME.idx] = new EndOfGame(this.rules, this::setState);
+    this.gameStates[State.BLACK_TURN.idx] = new BlackTurn(this.rules, whitePlayer.getId(),
+        blackPlayer.getId(), passMemory);
+    this.gameStates[State.WHITE_TURN.idx] = new WhiteTurn(this.rules, whitePlayer.getId(),
+        blackPlayer.getId(), passMemory);
+    this.gameStates[State.END_OF_GAME.idx] = new EndOfGame(this.rules, whitePlayer.getId(),
+        blackPlayer.getId(), passMemory);
     // grę rozpoczyna gracz czarny
     this.gameState = State.BLACK_TURN;
     this.moveCount = 0;
@@ -73,12 +78,12 @@ public class Game {
 
   public void execCommand(Command command) {
     switch (command.commandType) {
-      case MOVE:
-        this.gameStates[gameState.idx].makeMove(this.board, (CMDMove) command);
+      case PUT:
+        setState(gameStates[gameState.idx].putStone((CMDPut) command, board));
         break;
 
       case PASS:
-        this.gameStates[gameState.idx].pass((CMDPass) command);
+        setState(gameStates[gameState.idx].pass((CMDPass) command));
         break;
 
       default:
@@ -100,8 +105,9 @@ public class Game {
 
     String result = "";
 
-    for (int i = 0; i < GAME_CODE_LEN/2; ++i) {
-      result += "" + consonants.charAt(this.rand.nextInt(consonants.length())) + vowels.charAt(this.rand.nextInt(vowels.length()));
+    for (int i = 0; i < GAME_CODE_LEN / 2; ++i) {
+      result += "" + consonants.charAt(this.rand.nextInt(consonants.length()))
+          + vowels.charAt(this.rand.nextInt(vowels.length()));
     }
 
     return result;

@@ -1,7 +1,6 @@
 package pl.pwr.student.gogame.model.rules;
 
 import pl.pwr.student.gogame.model.board.Board;
-import pl.pwr.student.gogame.model.commands.CMDMove;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +17,9 @@ public class RuleSet {
     ruleSet.add(rule);
   }
 
-  public boolean meetsRules(Board board, CMDMove move) {
+  public boolean meetsRules(Board board, int x, int y, boolean isBlack) {
     for (Rule rule : ruleSet) {
-      if (!rule.meetsRule(board, move)) {
+      if (!rule.meetsRule(board, x, y, isBlack)) {
         return false;
       }
     }

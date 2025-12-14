@@ -4,17 +4,16 @@ import java.util.Random;
 
 import pl.pwr.student.gogame.model.Game;
 import pl.pwr.student.gogame.model.Player;
-import pl.pwr.student.gogame.model.board.Board;
 import pl.pwr.student.gogame.model.rules.Rule;
 import pl.pwr.student.gogame.model.rules.RuleSet;
 import pl.pwr.student.gogame.model.exceptions.PlayersNotSettledException;
 
-public class GameBuilder {
+public abstract class GameBuilder {
 
   protected Player player1;
   protected Player player2;
   protected RuleSet ruleSet;
-  protected int boardWidth;
+  protected Integer boardWidth;
   protected Random rand;
 
   public GameBuilder setPlayer1(Player player1) {
@@ -50,10 +49,5 @@ public class GameBuilder {
     return this;
   }
 
-  public Game buildGame() throws PlayersNotSettledException {
-    if ((rand.nextInt() % 2) == 1) {
-      return new Game(new Board(boardWidth), player1, player2, ruleSet, rand);
-    }
-    return new Game(new Board(boardWidth), player2, player1, ruleSet, rand);
-  }
+  public abstract Game buildGame() throws PlayersNotSettledException;
 }

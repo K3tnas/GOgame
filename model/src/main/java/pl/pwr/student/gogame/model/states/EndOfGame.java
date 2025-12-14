@@ -7,8 +7,8 @@ import pl.pwr.student.gogame.model.rules.RuleSet;
 
 public class EndOfGame extends GameState {
 
-    public EndOfGame(RuleSet rules, Board board, ContextManipulation contextManipulation) {
-        super(rules, board, contextManipulation);
+    public EndOfGame(RuleSet rules, ContextManipulation contextManipulation) {
+        super(rules, contextManipulation);
         //TODO Auto-generated constructor stub
     }
 
@@ -16,7 +16,7 @@ public class EndOfGame extends GameState {
     // Metody makeMove i pass celowo nic nie robią
 
     @Override
-    public void makeMove(CMDMove move) {
+    public void makeMove(Board board, CMDMove move) {
     }
 
     @Override

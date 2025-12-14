@@ -7,18 +7,18 @@ import pl.pwr.student.gogame.model.rules.RuleSet;
 
 public class BlackTurn extends GameState {
 
-    public BlackTurn(RuleSet rules, Board board, ContextManipulation contextManipulation) {
-        super(rules, board, contextManipulation);
+    public BlackTurn(RuleSet rules, ContextManipulation contextManipulation) {
+        super(rules, contextManipulation);
         //TODO Auto-generated constructor stub
     }
 
     @Override
-    public void makeMove(CMDMove move) {
+    public void makeMove(Board board, CMDMove move) {
         if (!move.isFromBlackPlayer) {
             return;
         }
 
-        if (rules.meetsRules(this.board, move)) {
+        if (rules.meetsRules(board, move)) {
             contextManipulation.setState(State.WHITE_TURN.idx);
         }
     }

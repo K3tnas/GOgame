@@ -18,9 +18,9 @@ public class Game {
   private Board board;
   private GameState gameState;
 
-  private String gameCode;
+  private final String gameCode;
 
-  private Random rand;
+  private final Random rand;
 
   private Integer moveCount;
 
@@ -29,7 +29,7 @@ public class Game {
   private Player blackPlayer;
   private Player whitePlayer;
 
-  private RuleSet rules;
+  private final RuleSet rules;
 
   private GameState[] gameStates;
 
@@ -56,12 +56,12 @@ public class Game {
 
   private void initializeGameStateMachine() {
     this.gameStates = new GameState[3];
-    this.gameStates[State.BLACK_TURN.idx] = new BlackTurn(this.rules, this.board, this::setState);
-    this.gameStates[State.WHITE_TURN.idx] = new WhiteTurn(this.rules, this.board, this::setState);
-    this.gameStates[State.END_OF_GAME.idx] = new EndOfGame(this.rules, this.board, this::setState);
+    this.gameStates[State.BLACK_TURN.idx] = new BlackTurn(this.rules, this::setState);
+    this.gameStates[State.WHITE_TURN.idx] = new WhiteTurn(this.rules, this::setState);
+    this.gameStates[State.END_OF_GAME.idx] = new EndOfGame(this.rules, this::setState);
     // grę rozpoczyna gracz czarny
-    this.moveCount = 0;
     this.gameState = gameStates[State.BLACK_TURN.idx];
+    this.moveCount = 0;
   }
 
   private void setState(Integer stateIdx) {
@@ -74,7 +74,7 @@ public class Game {
   public void execCommand(Command command) {
     switch (command.commandType) {
       case MOVE:
-        this.gameState.makeMove((CMDMove) command);
+        this.gameState.makeMove(this.board, (CMDMove) command);
         break;
 
       case PASS:
@@ -88,6 +88,23 @@ public class Game {
 
   public Integer getMoveCount() {
     return this.moveCount;
+  }
+
+  // Brzydki kod na potrzeby testów
+  public State getState() {
+    if (this.gameStates[State.BLACK_TURN.idx].equals(this.gameState)) {
+      return State.BLACK_TURN;
+    }
+    
+    if (this.gameStates[State.WHITE_TURN.idx].equals(this.gameState)) {
+      return State.WHITE_TURN;
+    }
+    
+    if (this.gameStates[State.END_OF_GAME.idx].equals(this.gameState)) {
+      return State.BLACK_TURN;
+    }
+
+    return null;
   }
 
   private String generateGameCode() {

@@ -36,7 +36,7 @@ public class Board {
     }
 
     public void setStone(int x, int y, Boolean isBlack) {
-        this.fields[y][x] = new Stone(isBlack);
+        this.fields[y][x] = new Stone(isBlack, getNeighbourFieldsCount(x, y));
     }
 
     public Integer getWidth() {
@@ -45,6 +45,16 @@ public class Board {
     
     public Integer getHeight() {
         return fields.length;
+    }
+
+    private Integer getNeighbourFieldsCount(int x, int y) {
+        int count = 0;
+        for (Integer[] neigh : NEIGHBOURS) {
+            if (isInside(x + neigh[0], y + neigh[1])) {
+                ++count;
+            }
+        }
+        return count;
     }
 
     public Board(int width) {

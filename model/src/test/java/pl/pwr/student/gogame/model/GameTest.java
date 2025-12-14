@@ -32,19 +32,24 @@ public class GameTest {
         assertEquals((Integer) 0, g.getMoveCount());
 
         Command cmd1 = new CMDPass(true);
+        g.execCommand(cmd1);
+        assertEquals(g.getState().idx, State.WHITE_TURN.idx);
+        assertEquals((Integer) 1, g.getMoveCount());
+
+        // wysłanie ruchu drugi raz zostanie zignorowane
+        g.execCommand(cmd1);
+        assertEquals(g.getState().idx, State.WHITE_TURN.idx);
+        assertEquals((Integer) 1, g.getMoveCount());
+
         Command cmd2 = new CMDMove(0, 0, false);
-
-        g.execCommand(cmd1);
-        assertEquals(g.getState().idx, State.WHITE_TURN.idx);
-        assertEquals((Integer) 1, g.getMoveCount());
-
-        g.execCommand(cmd1);
-        assertEquals(g.getState().idx, State.WHITE_TURN.idx);
-        assertEquals((Integer) 1, g.getMoveCount());
-
         g.execCommand(cmd2);
         assertEquals(g.getState().idx, State.BLACK_TURN.idx);
         assertEquals((Integer) 2, g.getMoveCount());
+
+        Command cmd3 = new CMDMove(0, 1, true);
+        g.execCommand(cmd3);
+        assertEquals(g.getState().idx, State.WHITE_TURN.idx);
+        assertEquals((Integer) 3, g.getMoveCount());
     }
 
     private Game createGameForTests() {

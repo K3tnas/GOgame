@@ -3,6 +3,7 @@ package pl.pwr.student.gogame.model.board;
 public class Stone {
     private Integer allyCount = 0;
     private Integer enemyCount = 0;
+    private Integer neighbourFields = 0;
     private Boolean black;
     
     public void resetNeighbourCounters() {
@@ -27,7 +28,7 @@ public class Stone {
     }
 
     public Integer breathCount() {
-        return 4 - allyCount - enemyCount;
+        return neighbourFields - allyCount - enemyCount;
     }
 
     public Boolean isBlack() {
@@ -42,7 +43,8 @@ public class Stone {
         return breathCount() == 0 && allyCount == 0;
     }
 
-    public Stone(Boolean isBlack) {
+    public Stone(Boolean isBlack, Integer neighbourFields) {
         this.black = isBlack;
+        this.neighbourFields = neighbourFields;
     }
 }

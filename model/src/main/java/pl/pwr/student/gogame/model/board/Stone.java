@@ -40,7 +40,7 @@ public class Stone {
         //          A: znajdziemy przynajmniej 1 kamień sojuszniczy z oddechem (nie musimy przechodzić całego łańcuchu) - wtedy kamień żyje
         //          B: przejdziemy wszystkie kamienie w łańcuchu i żaden z nich nie będzie miał oddechu - wtedy kamień umiera
 
-        return breathCount() == 0 && allyCount == 0;
+        return breathCount() == 0/* && allyCount == 0*/;
     }
 
     public Stone(Boolean isBlack, Integer neighbourFields) {

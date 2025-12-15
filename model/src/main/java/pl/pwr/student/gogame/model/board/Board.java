@@ -75,6 +75,8 @@ public class Board {
       return;
     }
 
+    stone.resetNeighbourCounters();
+
     for (Integer[] neigh : NEIGHBOURS) {
       int nx = x + neigh[0];
       int ny = y + neigh[1];
@@ -100,7 +102,7 @@ public class Board {
   public String toString() {
     StringBuilder b = new StringBuilder();
     b.append("   ");
-    for (int tensDigitColumn = 0; tensDigitColumn < getWidth(); ++ tensDigitColumn) {
+    for (int tensDigitColumn = 0; tensDigitColumn < getWidth(); ++tensDigitColumn) {
       int tens = tensDigitColumn / 10;
       if (tens == 0) {
         b.append("  ");
@@ -110,7 +112,7 @@ public class Board {
       }
     }
     b.append("\n   ");
-    for (int tensDigitColumn = 0; tensDigitColumn < getWidth(); ++ tensDigitColumn) {
+    for (int tensDigitColumn = 0; tensDigitColumn < getWidth(); ++tensDigitColumn) {
       b.append(tensDigitColumn % 10);
       b.append(" ");
     }

@@ -74,6 +74,19 @@ public class GameTest {
     g.execCommand(new CMDPut(0, 1, wPlayer));
 
     assertEquals(true, g.getBoard().isEmpty(0, 0));
+
+    g.execCommand(new CMDPut(4, 4, bPlayer));
+    g.execCommand(new CMDPut(5, 4, wPlayer));
+    assertNotNull(g.getBoard().getStone(4, 4));
+    g.execCommand(new CMDPass(bPlayer));
+    g.execCommand(new CMDPut(4, 5, wPlayer));
+    assertNotNull(g.getBoard().getStone(4, 4));
+    g.execCommand(new CMDPass(bPlayer));
+    g.execCommand(new CMDPut(3, 4, wPlayer));
+    assertNotNull(g.getBoard().getStone(4, 4));
+    g.execCommand(new CMDPass(bPlayer));
+    g.execCommand(new CMDPut(4, 3, wPlayer));
+    assertEquals(true, g.getBoard().isEmpty(4, 4));
   }
 
   private Game createGameForTests() {

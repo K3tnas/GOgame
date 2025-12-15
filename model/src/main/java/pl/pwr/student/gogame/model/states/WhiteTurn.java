@@ -40,24 +40,14 @@ public class WhiteTurn extends GameState {
     for (int i = 0; i < board.getWidth(); i++) {
       for (int j = 0; j < board.getHeight(); j++) {
         board.updateStone(i, j);
-      
-        // jeśli nie ma kamienia na polu, to nie ma co zabić
-        if (board.getStone(i, j) == null) {
-          stonesToKill[i][j] = false;
-          continue;
-        }
-
-        if (!board.isEmpty(i, j) && board.getStone(i, j).isBreathless()) {
-          stonesToKill[i][j] = true;
-        } else {
-          stonesToKill[i][j] = false;
-        }
+        stonesToKill[i][j] = board.isBreathless(i, j);
       }
     }
 
     for (int i = 0; i < board.getWidth(); i++) {
       for (int j = 0; j < board.getHeight(); j++) {
         if (stonesToKill[i][j]) {
+          System.out.println("Czarny gracz zbił pionek na polu " + i + " " + j);
           board.removeStone(i, j);
           whitePlayer.addCaptive();
         }

@@ -40,11 +40,7 @@ public class BlackTurn extends GameState {
     for (int i = 0; i < board.getWidth(); i++) {
       for (int j = 0; j < board.getHeight(); j++) {
         board.updateStone(i, j);
-        if (board.isBreathless(i, j)) {
-          stonesToKill[i][j] = true;
-        } else {
-          stonesToKill[i][j] = false;
-        }
+        stonesToKill[i][j] = board.isBreathless(i, j);
       }
     }
 
@@ -52,6 +48,7 @@ public class BlackTurn extends GameState {
       for (int j = 0; j < board.getHeight(); j++) {
         if (stonesToKill[i][j]) {
           board.removeStone(i, j);
+          System.out.println("Czarny gracz zbił pionek na polu " + i + " " + j);
           blackPlayer.addCaptive();
         }
       }

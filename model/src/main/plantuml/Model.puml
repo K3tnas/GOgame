@@ -1,86 +1,85 @@
 @startuml
-Scale 1.5
-package Model {
 
-  class Game {
+package model.builder {
+  abstract GameBuilder {
+
   }
 
-  class Player {
+  class StandardGameBuilder {
+
   }
 
-  package States {
-    interface GameState {
-    }
-
-    class WhiteTurn {
-    }
-
-    class BlackTurn {
-    }
-
-    class EndOfGame {
-    }
-
-    GameState <|.. WhiteTurn
-    GameState <|.. BlackTurn
-    GameState <|.. EndOfGame
-  }
-
-  package rules {
-    class RuleSet {
-    }
-
-    interface Iterator {
-    }
-
-    interface Rule {
-    }
-
-    abstract class SimpleRule {
-    }
-
-    abstract class ComplexRule {
-    }
-
-    Rule <|.. SimpleRule
-    Rule <|.. ComplexRule
-    ComplexRule *-->  Rule
-    ComplexRule *-- RuleSet
-    RuleSet *-- Rule
-    RuleSet ..|> Iterator
-  }
-
-  package board {
-    class Board {
-    }
-
-    Enum FieldState {
-    }
-
-    Board *-- FieldState
-  }
-  
-  package commands {
-    abstract Command {
-    }
-    
-    class MoveCommand {
-    }
-    
-    MoveCommand --|> Command
-  }
-  
-  package builder {
-    abstract Builder {}
-    class StandartBuilder {}
-    StandartBuilder --|> Builder
-  }
-
-  Game  o-- RuleSet
-  Game  *-- Board
-  Game *--> GameState
-  Game *-- Player
-  Game --> Command
-  Game --> Builder
+  StandardGameBuilder --|> GameBuilder
 }
-@enduml
+
+package model.exceptions {
+  class PlayersNotSettledException {
+
+  }
+}
+
+package model.rules {
+  class RuleSet {}
+
+  interface Rule {}
+
+  abstract class ComplexRule {}
+
+  package concreateRules {
+    class YouShallPlaceStoneOnlyOnEmptySpace {}
+  }
+
+  RuleSet --* ComplexRule
+  RuleSet *-- Rule
+  ComplexRule ..|> Rule
+  ComplexRule *--> Rule
+  YouShallPlaceStoneOnlyOnEmptySpace ..|> Rule
+}
+
+package model.states {
+  abstract GameState {}
+  class WhiteTurn {}
+  class BlackTurn {}
+  class EndOfGame {}
+  enum State {}
+
+  WhiteTurn --|> GameState
+  BlackTurn --|> GameState
+  EndOfGame --|> GameState
+}
+
+package model.commands {
+  abstract Command {}
+  class CMDPut {}
+  class CMDPass {}
+  enum CommandType {}
+
+  Command *-- CommandType
+  CMDPut --|> Command
+  CMDPass --|> Command
+}
+
+package model.board {
+  class Board {}
+  class Stone {}
+  Stone --* Board
+}
+
+package model {
+  class Game {}
+  class Player {}
+  class PassHistory {}
+
+  Game *-- PassHistory
+}
+
+GameBuilder ..> PlayersNotSettledException : throws
+GameBuilder --> RuleSet
+GameState --> RuleSet : has
+GameState ..> Command : handles
+Game o-- Player
+Game *-- Board
+Game ..> GameState : delegates to
+GameBuilder ..> Game : builds
+Game *-- State
+

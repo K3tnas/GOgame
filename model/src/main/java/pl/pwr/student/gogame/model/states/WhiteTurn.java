@@ -40,7 +40,7 @@ public class WhiteTurn extends GameState {
     for (int i = 0; i < board.getWidth(); i++) {
       for (int j = 0; j < board.getHeight(); j++) {
         board.updateStone(i, j);
-        if (!board.isEmpty(i, j) && board.getStone(i, j).isBreathless()) {
+        if (board.isBreathless(i, j)) {
           stonesToKill[i][j] = true;
         } else {
           stonesToKill[i][j] = false;

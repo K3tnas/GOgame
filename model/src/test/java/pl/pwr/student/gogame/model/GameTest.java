@@ -62,6 +62,21 @@ public class GameTest {
     assertEquals(State.END_OF_GAME, g.getState());
   }
 
+  @Test
+  public void killTest() {
+    Game g = createGameForTests();
+    g.startGame();
+    var bPlayer = g.getBlackPlayerId();
+    var wPlayer = g.getWhitePlayerId();
+
+    g.execCommand(new CMDPut(0, 0, bPlayer));
+    g.execCommand(new CMDPut(1, 0, wPlayer));
+    g.execCommand(new CMDPass(bPlayer));
+    g.execCommand(new CMDPut(0, 1, wPlayer));
+
+    assertEquals(true, g.getBoard().isEmpty(0, 0));
+  }
+
   private Game createGameForTests() {
     GameBuilder gb = new StandardGameBuilder();
 

@@ -61,6 +61,14 @@ public class Board {
     return count;
   }
 
+  public boolean isBreathless(int x, int y) {
+    if (getStone(x, y) == null) {
+      return false;
+    }
+
+    return getStone(x, y).isBreathless();
+  }
+
   public void updateStone(int x, int y) {
     Stone stone = getStone(x, y);
     if (stone == null) {

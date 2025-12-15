@@ -96,6 +96,29 @@ public class Board {
     }
   }
 
+  @Override
+  public String toString() {
+    StringBuilder b = new StringBuilder();
+    for (int y = 0; y < this.getHeight(); ++y) {
+      for (int x = 0; x < this.getWidth(); ++x) {
+        Stone stone = getStone(x, y);
+
+        if (stone == null) {
+          b.append(".");
+          continue;
+        }
+
+        if (stone.isBlack()) {
+          b.append("○");
+        } else {
+          b.append("●");
+        }
+      }
+      b.append("\n");
+    }
+    return b.toString();
+  }
+
   public Board(int width) {
     this.fields = new Stone[width][width];
     this.removeAllStones();

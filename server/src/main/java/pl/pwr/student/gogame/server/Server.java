@@ -32,139 +32,135 @@ import java.util.Arrays;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 
-import pl.pwr.student.gogame.model.board.Board;
+import pl.pwr.student.gogame.model.Game;
+import pl.pwr.student.gogame.model.Player;
+import pl.pwr.student.gogame.model.builder.GameBuilder;
+import pl.pwr.student.gogame.model.builder.StandardGameBuilder;
+import pl.pwr.student.gogame.model.commands.Command;
+import pl.pwr.student.gogame.model.exceptions.PlayersNotSettledException;
 
 public class Server {
+  // TODO: wiele gier na jednym serwerze jednocześnie
+  private Game game;
+
+  private User user1;
+  private User user2;
+  
+  private Integer idAutoincrement = 0;
 
   void main(String[] args) throws Exception {
     try (var listener = new ServerSocket(58901)) {
-      IO.println("Tic Tac Toe Server is Running...");
+      IO.println("Go Server is Running...");
       try (var pool = Executors.newVirtualThreadPerTaskExecutor()) {
         while (true) {
-          Game game = new Game();
-          pool.execute(game.new Player(listener.accept(), 'X'));
-          pool.execute(game.new Player(listener.accept(), 'O'));
+          // oczekiwanie na przychodzące połączenie
+          user1 = new User(listener.accept());
+          // utworzenie nowego wątku odpowiedzialnego za komunikację z użytkownikiem 1
+          pool.execute(user1);
+
+          user2 = new User(listener.accept());
+          pool.execute(user2);
         }
       }
     }
   }
 
-  class Game {
+  private void initializeGame() {
+    GameBuilder gb = new StandardGameBuilder();
+    gb.setPlayer1(user1).setPlayer2(user2);
+    try {
+      game = gb.buildGame();
+    } catch (PlayersNotSettledException e) {
+      user1.output.println("SAY,Błąd serwera");
+      user2.output.println("SAY,Błąd serwera");
+      System.exit(1);
+    }
+  }
 
-    // Board cells numbered 0-8, top to bottom, left to right; null if empty
-    private Player[] board = new Player[9];
+  // W przyszłości możliwość rozszerzenia klasy Player w taki sposób, aby możliwa była gra z komputerowym przeciwnikiem
+  class User extends Player implements Runnable {
+    final Socket socket;
+    final Scanner input;
+    final PrintWriter output;
 
-    // Whose turn it is now
-    Player currentPlayer;
+    public Boolean isReady = false;
 
-    public boolean hasWinner() {
-      return (board[0] != null && board[0] == board[1] && board[0] == board[2])
-          || (board[3] != null && board[3] == board[4] && board[3] == board[5])
-          || (board[6] != null && board[6] == board[7] && board[6] == board[8])
-          || (board[0] != null && board[0] == board[3] && board[0] == board[6])
-          || (board[1] != null && board[1] == board[4] && board[1] == board[7])
-          || (board[2] != null && board[2] == board[5] && board[2] == board[8])
-          || (board[0] != null && board[0] == board[4] && board[0] == board[8])
-          || (board[2] != null && board[2] == board[4] && board[2] == board[6]);
+    public User(Socket socket) throws IOException {
+      super();
+      this.socket = socket;
+      this.input = new Scanner(socket.getInputStream());
+      this.output = new PrintWriter(socket.getOutputStream(), true);
     }
 
-    public boolean boardFilledUp() {
-      return Arrays.stream(board).allMatch(p -> p != null);
-    }
-
-    public synchronized void move(int location, Player player) {
-      if (player != currentPlayer) {
-        throw new IllegalStateException("Not your turn");
-      } else if (player.opponent == null) {
-        throw new IllegalStateException("You don't have an opponent yet");
-      } else if (board[location] != null) {
-        throw new IllegalStateException("Cell already occupied");
-      }
-      board[location] = currentPlayer;
-      currentPlayer = currentPlayer.opponent;
-    }
-
-    /**
-     * A Player is identified by a character mark which is either 'X' or 'O'. For
-     * communication with the client the player has a socket and associated Scanner
-     * and PrintWriter.
-     */
-    class Player implements Runnable {
-      final char mark;
-      Player opponent;
-      final Socket socket;
-      final Scanner input;
-      final PrintWriter output;
-
-      public Player(Socket socket, char mark) throws IOException {
-        this.socket = socket;
-        this.mark = mark;
-        this.input = new Scanner(socket.getInputStream());
-        this.output = new PrintWriter(socket.getOutputStream(), true);
-      }
-
-      @Override
-      public void run() {
-        try (socket) {
-          setup();
-          processCommands();
-        } catch (Exception e) {
-          e.printStackTrace();
-        } finally {
-          if (opponent != null && opponent.output != null) {
-            opponent.output.println("OTHER_PLAYER_LEFT");
-          }
-          IO.println("Player " + this + " disconnected");
-        }
-      }
-
-      @Override
-      public String toString() {
-        return mark + "@" + socket.getRemoteSocketAddress();
-      }
-
-      private void setup() {
-        IO.println("Player " + this + " connected");
-        IO.println("Sending welcome message to " + this);
-        output.println("WELCOME " + mark);
-        if (mark == 'X') {
-          currentPlayer = this;
-          output.println("MESSAGE Waiting for opponent to connect");
+    @Override
+    public void run() {
+      try (socket) {
+        setup();
+        processCommands();
+      } catch (Exception e) {
+        e.printStackTrace();
+      } finally {
+        IO.println("Player " + this + " disconnected");
+        if (this.getId() == user1.getId()) {
+          user1 = null;
         } else {
-          opponent = currentPlayer;
-          opponent.opponent = this;
-          opponent.output.println("MESSAGE Your move");
+          user2 = null;
         }
       }
+    }
 
-      private void processCommands() {
-        while (input.hasNextLine()) {
-          var command = input.nextLine();
-          IO.println("Received command from " + this + ": " + command);
-          if (command.startsWith("QUIT")) {
-            // No more to read from this player
-            return;
-          } else if (command.startsWith("MOVE")) {
-            processMoveCommand(Integer.parseInt(command.substring(5)));
-          }
+    private void broadcastMessage(String message) {
+      user1.output.println("SAY," + message);
+      user2.output.println("SAY," + message);
+    }
+
+    @Override
+    public String toString() {
+      return getUsername() + "@" + socket.getRemoteSocketAddress();
+    }
+
+    private void setup() {
+      output.println("CONNECTED");
+      output.println("SAY,Podaj swoje imię");
+      setUsername(input.nextLine());
+      setId(idAutoincrement++);
+      output.println("SAY,Witaj " + getUsername() + "! Twoje ID to " + getId());
+      isReady = true;
+
+      if (user2 == null || !user2.isReady) {
+        user1.output.println("SAY,Oczekiwanie na połączenie drugiego gracza");
+      } else {
+        initializeGame();
+
+        if (game.getBlackPlayerId() == user1.getId()) {
+          user1.output.println("SAY,Grasz czarnymi");
+          user2.output.println("SAY,Grasz białymi");
+        } else {
+          user1.output.println("SAY,Grasz białymi");
+          user2.output.println("SAY,Grasz czarnymi");
         }
-      }
 
-      private void processMoveCommand(int location) {
-        try {
-          move(location, this);
-          output.println("VALID_MOVE");
-          opponent.output.println("OPPONENT_MOVED " + location);
-          if (hasWinner()) {
-            output.println("VICTORY");
-            opponent.output.println("DEFEAT");
-          } else if (boardFilledUp()) {
-            output.println("TIE");
-            opponent.output.println("TIE");
+        broadcastMessage(game.getBoard().toString());
+      }
+    }
+
+    private void processCommands() {
+      String request;
+      Command cmd;
+      while (input.hasNextLine()) {
+        request = input.nextLine();
+        if (request.startsWith("PUT") || request.startsWith("PASS")) {
+          if (game == null) {
+            output.println("SAY,Gra jeszcze się nie rozpoczęła");
+            continue;
           }
-        } catch (IllegalStateException e) {
-          IO.println("Rejected move from " + this + ": " + e.getMessage());
-          output.println("MESSAGE " + e.getMessage());
+          try {
+            cmd = Command.fromString(request);
+          } catch (Exception e) {
+            output.println("SAY,Nieznane polecenie");
+            continue;
+          }
+          game.execCommand(cmd);
         }
       }
     }

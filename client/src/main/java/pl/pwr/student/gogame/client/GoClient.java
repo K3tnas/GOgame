@@ -9,6 +9,8 @@ import java.net.UnknownHostException;
 import java.util.Scanner;
 
 import pl.pwr.student.gogame.model.Game;
+import pl.pwr.student.gogame.model.builder.GameBuilder;
+import pl.pwr.student.gogame.model.builder.StandardGameBuilder;
 
 /**
  * A client for a multi-player tic tac toe game. Loosely based on an example in
@@ -40,30 +42,25 @@ class GoClient {
   private Console c = System.console();
 
   public GoClient(String serverAddress) throws Exception {
-    try {
-      socket = new Socket(serverAddress, 58901);
-      in = new Scanner(socket.getInputStream());
-      out = new PrintWriter(socket.getOutputStream(), true);
-    } catch (UnknownHostException err) {
-      System.out.println("Cannot find route to host " + serverAddress);
-      System.exit(1);
-    } catch (IOException err) {
-      System.out.println("Socker I/O error while connecting to " + serverAddress);
-      System.exit(1);
-    }
+    socket = new Socket(serverAddress, 58901);
+    in = new Scanner(socket.getInputStream());
+    out = new PrintWriter(socket.getOutputStream(), true);
   }
 
-  public void play() {
-    new Thread(() -> {
-        readUserInput();
-    }).start();
-
+  public void connect() {
     try {
       awaitFromServer();
     } catch (Exception e) {
       System.out.println("Connection with server failed");
+      System.out.print(e.getMessage());
       System.exit(1);
     }
+  }
+
+  public void onConnected() {
+    new Thread(() -> {
+        readUserInput();
+    }).start();
   }
 
   private void readUserInput() {
@@ -74,6 +71,7 @@ class GoClient {
         out.println(message);
       } catch (IOError e) {
         System.out.println("System console I/O error");
+        System.exit(1);
       }
     }
   }
@@ -89,12 +87,25 @@ class GoClient {
    */
   public void awaitFromServer() throws Exception {
     try (socket) {
-      String response = in.nextLine();
-      final char mark = response.charAt(8);
-      final char opponentMark = mark == 'X' ? 'O' : 'X';
+      String response;
+      String[] arguments;
+
       while (in.hasNextLine()) {
         response = in.nextLine();
+        arguments = response.split(",");
 
+        switch (arguments[0]) {
+          case "SAY":
+            System.out.println(response.substring(4));
+            break;
+
+          case "CONNECTED":
+            onConnected();
+            break;
+        
+          default:
+            break;
+        }
       }
       // Inform server that we are quitting
       out.println("QUIT");

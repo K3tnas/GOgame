@@ -7,6 +7,6 @@ public class Client {
       return;
     }
     GoClient client = new GoClient(args[0]);
-    client.play();
+    client.connect();
   }
 }

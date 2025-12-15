@@ -204,7 +204,6 @@ public class Server {
           }
           if (game.execCommand(cmd)) {
             // ruch się udał
-            output.println(ServerCommand.SAY.name() + ",Ruch OK");
             sendCommand(ServerCommand.SAY, "Ruch OK", this);
             // powiadamiamy przeciwnika o wykonanym ruchu
             enemy.output.println(cmd.toString());

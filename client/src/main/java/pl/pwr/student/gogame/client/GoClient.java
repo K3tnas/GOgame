@@ -133,7 +133,7 @@ class GoClient {
 
         switch (arguments[0]) {
           case "SAY":
-            System.out.println(response.substring(4));
+            System.out.println("Serwer: " + response.substring(4));
             break;
 
           case "CONNECTED":

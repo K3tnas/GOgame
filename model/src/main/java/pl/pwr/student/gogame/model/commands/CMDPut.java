@@ -9,4 +9,9 @@ public class CMDPut extends Command {
     this.x = x;
     this.y = y;
   }
+
+  @Override
+  public String toString() {
+    return this.commandType.name() + "," + this.playerId + "," + this.x + "," + this.y;
+  }
 }

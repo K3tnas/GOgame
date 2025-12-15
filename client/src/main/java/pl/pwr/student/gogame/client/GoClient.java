@@ -122,6 +122,10 @@ class GoClient {
     }
   }
 
+  private void printBoard() {
+    System.out.println(game.getBoard().toString());
+  }
+
   public void awaitFromServer() throws Exception {
     try (socket) {
       String response;
@@ -163,7 +167,7 @@ class GoClient {
             if (game == null) {
               break;
             }
-            System.out.println(game.getBoard().toString());
+            printBoard();
             break;
 
           case "PASS":
@@ -186,6 +190,7 @@ class GoClient {
             game.startGame();
 
             System.out.println("No to gramy!");
+            printBoard();
             break;
         
           default:

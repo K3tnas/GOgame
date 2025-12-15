@@ -25,8 +25,8 @@ public class Game {
 
   // private Server host;
 
-  private Player blackPlayer;
-  private Player whitePlayer;
+  private final Player blackPlayer;
+  private final Player whitePlayer;
 
   private final RuleSet rules;
 
@@ -35,7 +35,7 @@ public class Game {
 
   public static final int GAME_CODE_LEN = 10;
 
-  private boolean[] passMemory = { false, false };
+  private final PassHistory passHistory;
 
   public Game(Board board, Player blackPlayer, Player whitePlayer, RuleSet rules, Random rand) {
     this.board = board;
@@ -44,6 +44,8 @@ public class Game {
     this.rules = rules;
 
     this.rand = rand;
+
+    this.passHistory = new PassHistory();
 
     this.gameCode = generateGameCode();
   }
@@ -58,12 +60,12 @@ public class Game {
 
   private void initializeGameStateMachine() {
     this.gameStates = new GameState[3];
-    this.gameStates[State.BLACK_TURN.idx] = new BlackTurn(this.rules, whitePlayer.getId(),
-        blackPlayer.getId(), passMemory);
-    this.gameStates[State.WHITE_TURN.idx] = new WhiteTurn(this.rules, whitePlayer.getId(),
-        blackPlayer.getId(), passMemory);
-    this.gameStates[State.END_OF_GAME.idx] = new EndOfGame(this.rules, whitePlayer.getId(),
-        blackPlayer.getId(), passMemory);
+    this.gameStates[State.BLACK_TURN.idx] = new BlackTurn(this.rules, whitePlayer,
+        blackPlayer, passHistory);
+    this.gameStates[State.WHITE_TURN.idx] = new WhiteTurn(this.rules, whitePlayer,
+        blackPlayer, passHistory);
+    this.gameStates[State.END_OF_GAME.idx] = new EndOfGame(this.rules, whitePlayer,
+        blackPlayer, passHistory);
     // grę rozpoczyna gracz czarny
     this.gameState = State.BLACK_TURN;
     this.moveCount = 0;
@@ -71,9 +73,9 @@ public class Game {
 
   private void setState(State state) {
     if (!this.gameState.equals(state)) {
-      this.gameState = state;
       this.moveCount++;
     }
+    this.gameState = state;
   }
 
   public void execCommand(Command command) {
@@ -107,8 +109,16 @@ public class Game {
     return this.gameState;
   }
 
+  public Board getBoard() {
+    return this.board;
+  }
+
   public void setBoard(Board board) {
     this.board = board;
+  }
+
+  public PassHistory getPassHistory() {
+    return this.passHistory;
   }
 
   private String generateGameCode() {

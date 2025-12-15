@@ -12,6 +12,10 @@ public class Board {
         0 <= y && y < this.getHeight();
   }
 
+  public Boolean isEmpty(int x, int y) {
+    return fields[x][y] == null;
+  }
+
   public static final Integer[][] NEIGHBOURS = {
       { 1, 0 },
       { 0, 1 },

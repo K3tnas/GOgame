@@ -16,7 +16,6 @@ public class StandardGameBuilder extends GameBuilder {
 
   static {
     STANDARD_RULE_SET = new RuleSet();
-    STANDARD_RULE_SET.addRule(new YouShallNotSuicide());
     STANDARD_RULE_SET.addRule(new YouShallPlaceStoneOnlyOnEmptyPlace());
   }
 

@@ -116,7 +116,7 @@ public class Board {
     }
     b.append("\n");
     for (int y = 0; y < this.getHeight(); ++y) {
-      b.append(String.format("%1$3s", y));
+      b.append(String.format("%1$2s ", y));
       for (int x = 0; x < this.getWidth(); ++x) {
         Stone stone = getStone(x, y);
 

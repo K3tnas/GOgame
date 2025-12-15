@@ -8,7 +8,11 @@ import java.util.Scanner;
 
 import pl.pwr.student.gogame.model.Game;
 import pl.pwr.student.gogame.model.Player;
+import pl.pwr.student.gogame.model.builder.GameBuilder;
+import pl.pwr.student.gogame.model.builder.StandardGameBuilder;
 import pl.pwr.student.gogame.model.commands.CMDPass;
+import pl.pwr.student.gogame.model.commands.CMDPut;
+import pl.pwr.student.gogame.model.commands.ClientCommand;
 
 /**
  * A client for a multi-player tic tac toe game. Loosely based on an example in
@@ -37,6 +41,9 @@ class GoClient {
   private final Scanner in;
   private final PrintWriter out;
 
+  private Player myPlayer;
+  private Player enemyPlayer;
+
   private Boolean amIBlackPlayer = null;
 
   private Console c = System.console();
@@ -63,22 +70,54 @@ class GoClient {
     }).start();
   }
 
-  private void printHelp() {
-    System.out.println("Tu będzie help");
-  }
-
   private void readUserInput() {
-    String message;
+    String userInput = "";
+    String[] arguments;
+
     while (true) {
       try {
-        message = c.readLine();
-        if ("HELP".equals(message)) {
-          printHelp();
-        }
-        out.println(message);
+        userInput = c.readLine();
       } catch (IOError e) {
         System.out.println("System console I/O error");
         System.exit(1);
+      }
+
+      arguments = userInput.split(" ");
+
+      switch (arguments[0].toLowerCase()) {
+        case "h":
+        case "help":
+          System.out.println("help - wypisz tą wiadomość\nput x y - ustaw kamień w kolumnie x oraz wierszu y (numeracja od 0)\npass - pomiń ruch");
+          break;
+
+        case "put":
+          if (game == null) {
+            break;
+          }
+          CMDPut cmdPut;
+          try {
+            cmdPut = new CMDPut(Integer.parseInt(arguments[1]), Integer.parseInt(arguments[2]));
+          } catch (Exception e) {
+            System.out.println(e.getMessage());
+            break;
+          }
+          if (game.execCommand(cmdPut)) {
+            out.println(cmdPut.toString());
+          }
+          break;
+
+        case "pass":
+          if (game == null) {
+            break;
+          }
+          CMDPass cmdPass = new CMDPass();
+          if (game.execCommand(cmdPass)) {
+            out.println(cmdPass.toString());
+          }
+          break;
+      
+        default:
+          break;
       }
     }
   }
@@ -103,10 +142,21 @@ class GoClient {
 
           case "BLACK_PLAYER":
             amIBlackPlayer = true;
+            System.out.println("Grasz czarnymi");
             break;
 
           case "WHITE_PLAYER":
             amIBlackPlayer = false;
+            System.out.println("Grasz białymi");
+            break;
+
+          case "SET_PLAYER":
+            myPlayer = new Player(arguments[1], Integer.parseInt(arguments[2]));
+            break;
+
+          case "SET_ENEMY":
+            enemyPlayer = new Player(arguments[1], Integer.parseInt(arguments[2]));
+            System.out.println("Grasz przeciwko " + enemyPlayer.toString());
             break;
 
           case "PRINT_BOARD":
@@ -117,14 +167,26 @@ class GoClient {
             break;
 
           case "PASS":
+          case "PUT":
             if (game == null) {
               break;
             }
-            game.execCommand(new CMDPass(Integer.parseInt(arguments[1])));
+            game.execCommand(ClientCommand.fromString(response));
             break;
 
           case "GAME_START":
+            GameBuilder gb = new StandardGameBuilder();
+            if (amIBlackPlayer) {
+              gb.setBlackPlayer(myPlayer).setWhitePlayer(enemyPlayer);
+            } else {
+              gb.setWhitePlayer(myPlayer).setBlackPlayer(enemyPlayer);
+            }
 
+            game = gb.buildGame();
+            game.startGame();
+
+            System.out.println("No to gramy!");
+            break;
         
           default:
             break;

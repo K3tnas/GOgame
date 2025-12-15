@@ -4,7 +4,7 @@ import pl.pwr.student.gogame.model.exceptions.MangledMessageException;
 
 public abstract class ClientCommand {
   public final CommandType commandType;
-  public final Integer playerId;
+  public Integer playerId;
 
   public ClientCommand(CommandType cmdType, Integer playerId) {
     this.commandType = cmdType;

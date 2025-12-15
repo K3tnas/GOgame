@@ -11,7 +11,7 @@ public class CMDPut extends ClientCommand {
   }
   
   public CMDPut(Integer x, Integer y) {
-    super(CommandType.PUT, null);
+    super(CommandType.PUT, -1);
     this.x = x;
     this.y = y;
   }

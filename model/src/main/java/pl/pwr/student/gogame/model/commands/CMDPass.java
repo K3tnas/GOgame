@@ -6,7 +6,7 @@ public class CMDPass extends ClientCommand {
   }
   
   public CMDPass() {
-    super(CommandType.PASS, null);
+    super(CommandType.PASS, -1);
   }
 
   @Override

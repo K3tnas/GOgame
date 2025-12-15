@@ -38,4 +38,9 @@ public class Player {
   public int getCaptives() {
     return captives;
   }
+
+  @Override
+  public String toString() {
+    return this.username + "#" + this.id;
+  }
 }

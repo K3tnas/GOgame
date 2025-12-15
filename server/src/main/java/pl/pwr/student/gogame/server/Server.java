@@ -72,16 +72,21 @@ public class Server {
     GAME_START,
     BLACK_PLAYER,
     WHITE_PLAYER,
+    CONNECTED,
+    SET_PLAYER,
+    SET_ENEMY
   }
 
-  private void checkReady() {
+  private void checkPlayersReady() {
     if (user1 == null || user2 == null) {
       return;
     }
 
     if (user1.isReady && user2.isReady) {
       user1.setEnemy(user2);
+      sendCommand(ServerCommand.SET_ENEMY, user2.toString(), user1);
       user2.setEnemy(user1);
+      sendCommand(ServerCommand.SET_ENEMY, user1.toString(), user2);
       initializeGame();
     }
   }
@@ -119,6 +124,10 @@ public class Server {
 
   private void sendCommand(ServerCommand command, String message, User user) {
     user.output.println(command.name() + (message == null ? "" : "," + message));
+  }
+  
+  private void sendCommand(ServerCommand command, User user) {
+    sendCommand(command, null, user);
   }
 
   // W przyszłości możliwość rozszerzenia klasy Player w taki sposób, aby możliwa była gra z komputerowym przeciwnikiem
@@ -158,18 +167,22 @@ public class Server {
 
     @Override
     public String toString() {
-      return getUsername() + "@" + socket.getRemoteSocketAddress();
+      return getUsername()+","+getId();
     }
 
     private void setup() {
-      output.println("CONNECTED");
-      output.println(ServerCommand.SAY.name() + ",Podaj swoje imię");
-      setUsername(input.nextLine());
+      sendCommand(ServerCommand.CONNECTED, this);
+      sendCommand(ServerCommand.SAY, "Podaj swoje imię", this);
+
+      // TODO: sprawdzenie czemu w tym miejscu proces blokował się na in.nextLine()
+      setUsername("Player-tmp-name");
       setId(idAutoincrement++);
-      output.println(ServerCommand.SAY.name() + ",Witaj " + getUsername() + "! Twoje ID to " + getId());
+
+      sendCommand(ServerCommand.SET_PLAYER, this.toString(), this);
+      sendCommand(ServerCommand.SAY, "Witaj " + getUsername() + "! Twoje ID to " + getId(), this);
       isReady = true;
 
-      checkReady();
+      checkPlayersReady();
     }
 
     private void processCommands() {
@@ -179,26 +192,27 @@ public class Server {
         request = input.nextLine();
         if (request.startsWith("PUT") || request.startsWith("PASS")) {
           if (game == null) {
-            output.println("SAY,Gra jeszcze się nie rozpoczęła");
+            sendCommand(ServerCommand.SAY, "Gra jeszcze się nie rozpoczęła", this);
             continue;
           }
           try {
             cmd = ClientCommand.fromString(request);
             cmd.playerId = getId();
           } catch (Exception e) {
-            output.println(ServerCommand.SAY.name() + ",Błędny format polecenia, zobacz HELP");
+            sendCommand(ServerCommand.SAY, "Błędny format polecenia, zobacz HELP", this);
             continue;
           }
           if (game.execCommand(cmd)) {
             // ruch się udał
             output.println(ServerCommand.SAY.name() + ",Ruch OK");
+            sendCommand(ServerCommand.SAY, "Ruch OK", this);
             // powiadamiamy przeciwnika o wykonanym ruchu
             enemy.output.println(cmd.toString());
             // serwer wymusza ponowne wyświetlenie boarda
             broadcastMessage(ServerCommand.PRINT_BOARD, "");
           } else {
             // ruch się nie udał
-            output.println(ServerCommand.SAY.name() + ",Nielegalny ruch");
+            sendCommand(ServerCommand.SAY, "Nielegalny ruch", this);
           }
         }
       }

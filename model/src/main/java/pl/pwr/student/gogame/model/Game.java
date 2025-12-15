@@ -12,7 +12,7 @@ import pl.pwr.student.gogame.model.states.State;
 import pl.pwr.student.gogame.model.states.WhiteTurn;
 import pl.pwr.student.gogame.model.commands.CMDPut;
 import pl.pwr.student.gogame.model.commands.CMDPass;
-import pl.pwr.student.gogame.model.commands.Command;
+import pl.pwr.student.gogame.model.commands.ClientCommand;
 
 public class Game {
   private Board board;
@@ -71,25 +71,27 @@ public class Game {
     this.moveCount = 0;
   }
 
-  private void setState(State state) {
+  private Boolean setState(State state) {
+    Boolean moveSucceeded = false;
     if (!this.gameState.equals(state)) {
       this.moveCount++;
+      moveSucceeded = true;
     }
     this.gameState = state;
+    return moveSucceeded;
   }
 
-  public void execCommand(Command command) {
+  // Zwraca czy udało się wykonać polecenie (ruch był poprawny)
+  public Boolean execCommand(ClientCommand command) {
     switch (command.commandType) {
       case PUT:
-        setState(gameStates[gameState.idx].putStone((CMDPut) command, board));
-        break;
+        return setState(gameStates[gameState.idx].putStone((CMDPut) command, board));
 
       case PASS:
-        setState(gameStates[gameState.idx].pass((CMDPass) command));
-        break;
+        return setState(gameStates[gameState.idx].pass((CMDPass) command));
 
       default:
-        break;
+        return false;
     }
   }
 

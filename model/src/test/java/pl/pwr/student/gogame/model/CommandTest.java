@@ -6,17 +6,17 @@ import org.junit.Test;
 
 import pl.pwr.student.gogame.model.commands.CMDPass;
 import pl.pwr.student.gogame.model.commands.CMDPut;
-import pl.pwr.student.gogame.model.commands.Command;
+import pl.pwr.student.gogame.model.commands.ClientCommand;
 import pl.pwr.student.gogame.model.exceptions.MangledMessageException;
 
 public class CommandTest {
     @Test
     public void serializeDeserializePass() {
-        String serializedPass = "PASS,42";
+        String serializedPass = "PASS,3";
         CMDPass cmd;
 
         try {
-            cmd = (CMDPass) Command.fromString(serializedPass);
+            cmd = (CMDPass) ClientCommand.fromString(serializedPass);
         } catch (MangledMessageException e) {
             assertEquals("Nie powinno być błędu przy deserializacji CMDPass", "a jednak jest: " + e.getMessage());
             return;
@@ -31,7 +31,7 @@ public class CommandTest {
         CMDPut cmd;
 
         try {
-            cmd = (CMDPut) Command.fromString(serializedPut);
+            cmd = (CMDPut) ClientCommand.fromString(serializedPut);
         } catch (MangledMessageException e) {
             assertEquals("Nie powinno być błędu przy deserializacji CMDPut", "a jednak jest: " + e.getMessage());
             return;

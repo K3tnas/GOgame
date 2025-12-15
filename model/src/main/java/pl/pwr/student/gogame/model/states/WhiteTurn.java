@@ -44,6 +44,7 @@ public class WhiteTurn extends GameState {
         // jeśli nie ma kamienia na polu, to nie ma co zabić
         if (board.getStone(i, j) == null) {
           stonesToKill[i][j] = false;
+          continue;
         }
 
         if (!board.isEmpty(i, j) && board.getStone(i, j).isBreathless()) {

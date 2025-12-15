@@ -15,6 +15,7 @@ public abstract class GameBuilder {
   protected RuleSet ruleSet;
   protected Integer boardWidth;
   protected Random rand;
+  protected Boolean isColorRandomizationUsed = true;
 
   public GameBuilder setPlayer1(Player player1) {
     this.player1 = player1;
@@ -47,6 +48,20 @@ public abstract class GameBuilder {
   public GameBuilder setRand(Random rand) {
     this.rand = rand;
     return this;
+  }
+
+  // przy wyłączonej randomizacji kolorów player1 zawsze będzie czarny
+  private GameBuilder disableColorRandomization() {
+    this.isColorRandomizationUsed = false;
+    return this;
+  }
+
+  public GameBuilder setBlackPlayer(Player p) {
+    return this.disableColorRandomization().setPlayer1(p);
+  }
+
+  public GameBuilder setWhitePlayer(Player p) {
+    return this.disableColorRandomization().setPlayer2(p);
   }
 
   public abstract Game buildGame() throws PlayersNotSettledException;

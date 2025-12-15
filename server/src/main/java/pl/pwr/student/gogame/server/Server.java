@@ -28,7 +28,6 @@ import java.net.ServerSocket;
  */
 
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 
@@ -36,7 +35,7 @@ import pl.pwr.student.gogame.model.Game;
 import pl.pwr.student.gogame.model.Player;
 import pl.pwr.student.gogame.model.builder.GameBuilder;
 import pl.pwr.student.gogame.model.builder.StandardGameBuilder;
-import pl.pwr.student.gogame.model.commands.Command;
+import pl.pwr.student.gogame.model.commands.ClientCommand;
 import pl.pwr.student.gogame.model.exceptions.PlayersNotSettledException;
 
 public class Server {
@@ -65,12 +64,24 @@ public class Server {
     }
   }
 
+  private enum ServerCommand {
+    SAY,
+    PRINT_BOARD,
+    PUT,
+    PASS,
+    GAME_START,
+    BLACK_PLAYER,
+    WHITE_PLAYER,
+  }
+
   private void checkReady() {
     if (user1 == null || user2 == null) {
       return;
     }
 
     if (user1.isReady && user2.isReady) {
+      user1.setEnemy(user2);
+      user2.setEnemy(user1);
       initializeGame();
     }
   }
@@ -82,22 +93,32 @@ public class Server {
       game = gb.buildGame();
       game.startGame();
     } catch (PlayersNotSettledException e) {
-      user1.output.println("SAY,Błąd serwera");
-      user2.output.println("SAY,Błąd serwera");
+      broadcastMessage(ServerCommand.SAY, "Błąd serwera");
       System.exit(1);
     }
     if (user1.getId() == game.getBlackPlayerId()) {
-      user1.output.println("SAY,Grasz czarnymi");
-      user2.output.println("SAY,Grasz białymi");
+      sendCommand(ServerCommand.BLACK_PLAYER, null, user1);
+      sendCommand(ServerCommand.WHITE_PLAYER, null, user2);
     } else {
-      user1.output.println("SAY,Grasz białymi");
-      user2.output.println("SAY,Grasz czarnymi");
+      sendCommand(ServerCommand.WHITE_PLAYER, null, user1);
+      sendCommand(ServerCommand.BLACK_PLAYER, null, user2);
     }
+
+    broadcastMessage(ServerCommand.GAME_START);
   }
 
-  private void broadcastMessage(String message) {
-    user1.output.println("SAY," + message);
-    user2.output.println("SAY," + message);
+  private void broadcastMessage(ServerCommand command) {
+    sendCommand(command, null, user1);
+    sendCommand(command, null, user2);
+  }
+
+  private void broadcastMessage(ServerCommand command, String message) {
+    sendCommand(command, message, user1);
+    sendCommand(command, message, user2);
+  }
+
+  private void sendCommand(ServerCommand command, String message, User user) {
+    user.output.println(command.name() + (message == null ? "" : "," + message));
   }
 
   // W przyszłości możliwość rozszerzenia klasy Player w taki sposób, aby możliwa była gra z komputerowym przeciwnikiem
@@ -108,11 +129,17 @@ public class Server {
 
     public Boolean isReady = false;
 
+    private User enemy;
+
     public User(Socket socket) throws IOException {
       super();
       this.socket = socket;
       this.input = new Scanner(socket.getInputStream());
       this.output = new PrintWriter(socket.getOutputStream(), true);
+    }
+
+    public void setEnemy(User u) {
+      this.enemy = u;
     }
 
     @Override
@@ -136,10 +163,10 @@ public class Server {
 
     private void setup() {
       output.println("CONNECTED");
-      output.println("SAY,Podaj swoje imię");
+      output.println(ServerCommand.SAY.name() + ",Podaj swoje imię");
       setUsername(input.nextLine());
       setId(idAutoincrement++);
-      output.println("SAY,Witaj " + getUsername() + "! Twoje ID to " + getId());
+      output.println(ServerCommand.SAY.name() + ",Witaj " + getUsername() + "! Twoje ID to " + getId());
       isReady = true;
 
       checkReady();
@@ -147,7 +174,7 @@ public class Server {
 
     private void processCommands() {
       String request;
-      Command cmd;
+      ClientCommand cmd;
       while (input.hasNextLine()) {
         request = input.nextLine();
         if (request.startsWith("PUT") || request.startsWith("PASS")) {
@@ -156,12 +183,23 @@ public class Server {
             continue;
           }
           try {
-            cmd = Command.fromString(request);
+            cmd = ClientCommand.fromString(request);
+            cmd.playerId = getId();
           } catch (Exception e) {
-            output.println("SAY,Nieznane polecenie");
+            output.println(ServerCommand.SAY.name() + ",Błędny format polecenia, zobacz HELP");
             continue;
           }
-          game.execCommand(cmd);
+          if (game.execCommand(cmd)) {
+            // ruch się udał
+            output.println(ServerCommand.SAY.name() + ",Ruch OK");
+            // powiadamiamy przeciwnika o wykonanym ruchu
+            enemy.output.println(cmd.toString());
+            // serwer wymusza ponowne wyświetlenie boarda
+            broadcastMessage(ServerCommand.PRINT_BOARD, "");
+          } else {
+            // ruch się nie udał
+            output.println(ServerCommand.SAY.name() + ",Nielegalny ruch");
+          }
         }
       }
     }

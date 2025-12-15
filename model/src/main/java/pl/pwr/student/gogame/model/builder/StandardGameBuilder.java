@@ -37,10 +37,10 @@ public class StandardGameBuilder extends GameBuilder {
       rand = new Random();
     }
 
-    if (rand.nextInt() % 2 == 1) {
-      return new Game(new Board(boardWidth), player1, player2, ruleSet, rand);
+    if (isColorRandomizationUsed && rand.nextInt() % 2 == 1) {
+      return new Game(new Board(boardWidth), player2, player1, ruleSet, rand);
     }
 
-    return new Game(new Board(boardWidth), player2, player1, ruleSet, rand);
+    return new Game(new Board(boardWidth), player1, player2, ruleSet, rand);
   }
 }

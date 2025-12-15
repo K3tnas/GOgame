@@ -1,11 +1,17 @@
 package pl.pwr.student.gogame.model.commands;
 
-public class CMDPut extends Command {
+public class CMDPut extends ClientCommand {
   public int x;
   public int y;
 
-  public CMDPut(int x, int y, int playerId) {
+  public CMDPut(Integer x, Integer y, Integer playerId) {
     super(CommandType.PUT, playerId);
+    this.x = x;
+    this.y = y;
+  }
+  
+  public CMDPut(Integer x, Integer y) {
+    super(CommandType.PUT, null);
     this.x = x;
     this.y = y;
   }

@@ -2,18 +2,18 @@ package pl.pwr.student.gogame.model.commands;
 
 import pl.pwr.student.gogame.model.exceptions.MangledMessageException;
 
-public abstract class Command {
+public abstract class ClientCommand {
   public final CommandType commandType;
   public final Integer playerId;
 
-  public Command(CommandType cmdType, int playerId) {
+  public ClientCommand(CommandType cmdType, Integer playerId) {
     this.commandType = cmdType;
     this.playerId = playerId;
   }
 
   public abstract String toString();
 
-  public static Command fromString(String in) throws MangledMessageException {
+  public static ClientCommand fromString(String in) throws MangledMessageException {
     if (in.length() == 0) {
       throw new MangledMessageException("Empty message cannot be parsed to Command");
     }
@@ -31,7 +31,7 @@ public abstract class Command {
       throw new MangledMessageException("Player ID must be decimal integer");
     }
 
-    Command cmd;
+    ClientCommand cmd;
     if ("PUT".equals(commandTypeName)) {
       if (arguments.length < 4) {
         throw new MangledMessageException("Missing position (x,y) arguments in PUT command");

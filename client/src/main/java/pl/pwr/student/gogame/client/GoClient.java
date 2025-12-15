@@ -7,6 +7,8 @@ import java.net.Socket;
 import java.util.Scanner;
 
 import pl.pwr.student.gogame.model.Game;
+import pl.pwr.student.gogame.model.Player;
+import pl.pwr.student.gogame.model.commands.CMDPass;
 
 /**
  * A client for a multi-player tic tac toe game. Loosely based on an example in
@@ -35,6 +37,8 @@ class GoClient {
   private final Scanner in;
   private final PrintWriter out;
 
+  private Boolean amIBlackPlayer = null;
+
   private Console c = System.console();
 
   public GoClient(String serverAddress) throws Exception {
@@ -47,7 +51,7 @@ class GoClient {
     try {
       awaitFromServer();
     } catch (Exception e) {
-      System.out.println("Connection with server failed");
+      System.out.println("Błąd w komunikacji z serwerem");
       System.out.print(e.getMessage());
       System.exit(1);
     }
@@ -79,15 +83,6 @@ class GoClient {
     }
   }
 
-  /**
-   * The main thread of the client will listen for messages from the server.
-   * The first message will be a "WELCOME" message in which we receive our
-   * mark. Then we go into a loop listening for any of the other messages,
-   * and handling each message appropriately. The "VICTORY", "DEFEAT", "TIE",
-   * and "OTHER_PLAYER_LEFT" messages will ask the user whether or not to play
-   * another game. If the answer is no, the loop is exited and the server is
-   * sent a "QUIT" message.
-   */
   public void awaitFromServer() throws Exception {
     try (socket) {
       String response;
@@ -105,6 +100,31 @@ class GoClient {
           case "CONNECTED":
             onConnected();
             break;
+
+          case "BLACK_PLAYER":
+            amIBlackPlayer = true;
+            break;
+
+          case "WHITE_PLAYER":
+            amIBlackPlayer = false;
+            break;
+
+          case "PRINT_BOARD":
+            if (game == null) {
+              break;
+            }
+            System.out.println(game.getBoard().toString());
+            break;
+
+          case "PASS":
+            if (game == null) {
+              break;
+            }
+            game.execCommand(new CMDPass(Integer.parseInt(arguments[1])));
+            break;
+
+          case "GAME_START":
+
         
           default:
             break;

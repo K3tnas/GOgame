@@ -10,7 +10,7 @@ import pl.pwr.student.gogame.model.states.EndOfGame;
 import pl.pwr.student.gogame.model.states.GameState;
 import pl.pwr.student.gogame.model.states.State;
 import pl.pwr.student.gogame.model.states.WhiteTurn;
-import pl.pwr.student.gogame.model.commands.CMDMove;
+import pl.pwr.student.gogame.model.commands.CMDPut;
 import pl.pwr.student.gogame.model.commands.CMDPass;
 import pl.pwr.student.gogame.model.commands.Command;
 
@@ -25,8 +25,8 @@ public class Game {
 
   // private Server host;
 
-  private Player blackPlayer;
-  private Player whitePlayer;
+  private final Player blackPlayer;
+  private final Player whitePlayer;
 
   private final RuleSet rules;
 
@@ -35,6 +35,8 @@ public class Game {
 
   public static final int GAME_CODE_LEN = 10;
 
+  private final PassHistory passHistory;
+
   public Game(Board board, Player blackPlayer, Player whitePlayer, RuleSet rules, Random rand) {
     this.board = board;
     this.whitePlayer = whitePlayer;
@@ -42,6 +44,8 @@ public class Game {
     this.rules = rules;
 
     this.rand = rand;
+
+    this.passHistory = new PassHistory();
 
     this.gameCode = generateGameCode();
   }
@@ -56,9 +60,12 @@ public class Game {
 
   private void initializeGameStateMachine() {
     this.gameStates = new GameState[3];
-    this.gameStates[State.BLACK_TURN.idx] = new BlackTurn(this.rules, this::setState);
-    this.gameStates[State.WHITE_TURN.idx] = new WhiteTurn(this.rules, this::setState);
-    this.gameStates[State.END_OF_GAME.idx] = new EndOfGame(this.rules, this::setState);
+    this.gameStates[State.BLACK_TURN.idx] = new BlackTurn(this.rules, whitePlayer,
+        blackPlayer, passHistory);
+    this.gameStates[State.WHITE_TURN.idx] = new WhiteTurn(this.rules, whitePlayer,
+        blackPlayer, passHistory);
+    this.gameStates[State.END_OF_GAME.idx] = new EndOfGame(this.rules, whitePlayer,
+        blackPlayer, passHistory);
     // grę rozpoczyna gracz czarny
     this.gameState = State.BLACK_TURN;
     this.moveCount = 0;
@@ -66,19 +73,19 @@ public class Game {
 
   private void setState(State state) {
     if (!this.gameState.equals(state)) {
-      this.gameState = state;
       this.moveCount++;
     }
+    this.gameState = state;
   }
 
   public void execCommand(Command command) {
     switch (command.commandType) {
-      case MOVE:
-        this.gameStates[gameState.idx].makeMove(this.board, (CMDMove) command);
+      case PUT:
+        setState(gameStates[gameState.idx].putStone((CMDPut) command, board));
         break;
 
       case PASS:
-        this.gameStates[gameState.idx].pass((CMDPass) command);
+        setState(gameStates[gameState.idx].pass((CMDPass) command));
         break;
 
       default:
@@ -90,8 +97,28 @@ public class Game {
     return this.moveCount;
   }
 
+  public int getBlackPlayerId() {
+    return blackPlayer.getId();
+  }
+
+  public int getWhitePlayerId() {
+    return whitePlayer.getId();
+  }
+
   public State getState() {
     return this.gameState;
+  }
+
+  public Board getBoard() {
+    return this.board;
+  }
+
+  public void setBoard(Board board) {
+    this.board = board;
+  }
+
+  public PassHistory getPassHistory() {
+    return this.passHistory;
   }
 
   private String generateGameCode() {
@@ -100,8 +127,9 @@ public class Game {
 
     String result = "";
 
-    for (int i = 0; i < GAME_CODE_LEN/2; ++i) {
-      result += "" + consonants.charAt(this.rand.nextInt(consonants.length())) + vowels.charAt(this.rand.nextInt(vowels.length()));
+    for (int i = 0; i < GAME_CODE_LEN / 2; ++i) {
+      result += "" + consonants.charAt(this.rand.nextInt(consonants.length()))
+          + vowels.charAt(this.rand.nextInt(vowels.length()));
     }
 
     return result;

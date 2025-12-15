@@ -1,11 +1,11 @@
 package pl.pwr.student.gogame.model.commands;
 
 public abstract class Command {
-  public CommandType commandType;
-  public Boolean isFromBlackPlayer;
+  public final CommandType commandType;
+  public final int playerId;
 
-  protected Command(CommandType cmdType, Boolean isFromBlackPlayer) {
+  public Command(CommandType cmdType, int playerId) {
     this.commandType = cmdType;
-    this.isFromBlackPlayer = isFromBlackPlayer;
+    this.playerId = playerId;
   }
 }

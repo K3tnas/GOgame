@@ -1,19 +1,12 @@
 package pl.pwr.student.gogame.model.rules.ConcreteRules;
 
 import pl.pwr.student.gogame.model.board.Board;
-import pl.pwr.student.gogame.model.commands.CMDMove;
-import pl.pwr.student.gogame.model.rules.ComplexRule;
+import pl.pwr.student.gogame.model.rules.Rule;
 
-public class YouShallPlaceStoneOnlyOnEmptyPlace extends ComplexRule {
+public class YouShallPlaceStoneOnlyOnEmptyPlace implements Rule {
 
-    @Override
-    protected Boolean meetsOwnRule(Board board, CMDMove move) {
-        return board.getStone(move.x, move.y) == null;
-    }
-
-    @Override
-    public Boolean meetsRule(Board board, CMDMove move) {
-        return meetsOwnRule(board, move);
-    }
-    
+  @Override
+  public Boolean meetsRule(Board board, int x, int y, boolean isBlack) {
+    return board.getStone(x, y) == null;
+  }
 }

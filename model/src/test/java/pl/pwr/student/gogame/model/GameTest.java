@@ -1,6 +1,7 @@
 package pl.pwr.student.gogame.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.Random;
 
@@ -8,9 +9,8 @@ import org.junit.Test;
 
 import pl.pwr.student.gogame.model.builder.GameBuilder;
 import pl.pwr.student.gogame.model.builder.StandardGameBuilder;
-import pl.pwr.student.gogame.model.commands.CMDMove;
+import pl.pwr.student.gogame.model.commands.CMDPut;
 import pl.pwr.student.gogame.model.commands.CMDPass;
-import pl.pwr.student.gogame.model.commands.Command;
 import pl.pwr.student.gogame.model.exceptions.PlayersNotSettledException;
 import pl.pwr.student.gogame.model.states.State;
 
@@ -27,36 +27,46 @@ public class GameTest {
   public void gameStateMachineChangingStates() {
     Game g = createGameForTests();
     g.startGame();
+    var bPlayer = g.getBlackPlayerId();
+    var wPlayer = g.getWhitePlayerId();
 
-    assertEquals(g.getState().idx, State.BLACK_TURN.idx);
-    assertEquals((Integer) 0, g.getMoveCount());
+    // Zaczyna czarny
+    assertEquals(State.BLACK_TURN, g.getState());
 
-    Command cmd1 = new CMDPass(true);
-    g.execCommand(cmd1);
-    assertEquals(g.getState().idx, State.WHITE_TURN.idx);
-    assertEquals((Integer) 1, g.getMoveCount());
+    // Test wykrwywania błędu
+    g.execCommand(new CMDPut(15, 15, bPlayer));
+    assertEquals(State.BLACK_TURN, g.getState());
 
-    // wysłanie ruchu drugi raz zostanie zignorowane
-    g.execCommand(cmd1);
-    assertEquals(g.getState().idx, State.WHITE_TURN.idx);
-    assertEquals((Integer) 1, g.getMoveCount());
+    // Poprawny ruch - zmiana rundy
+    g.execCommand(new CMDPut(1, 1, bPlayer));
+    assertEquals(State.WHITE_TURN, g.getState());
+    assertNotNull(g.getBoard().getStone(1, 1));
 
-    Command cmd2 = new CMDMove(0, 0, false);
-    g.execCommand(cmd2);
-    assertEquals(g.getState().idx, State.BLACK_TURN.idx);
-    assertEquals((Integer) 2, g.getMoveCount());
+    // Czarny gracz próbuje coś zrobić
+    // w nie swojej turze - brak zmiany
+    g.execCommand(new CMDPut(1, 1, bPlayer));
+    assertEquals(State.WHITE_TURN, g.getState());
 
-    Command cmd3 = new CMDMove(0, 1, true);
-    g.execCommand(cmd3);
-    assertEquals(g.getState().idx, State.WHITE_TURN.idx);
-    assertEquals((Integer) 3, g.getMoveCount());
+    // biały gracz próbuje postawić piona na niepuste pole
+    // brak zmiany
+    g.execCommand(new CMDPut(1, 1, wPlayer));
+    assertEquals(State.WHITE_TURN, g.getState());
+
+    // biały gracz passuje - zmiana
+    g.execCommand(new CMDPass(wPlayer));
+    assertEquals(State.BLACK_TURN, g.getState());
+
+    // koniec gry
+    g.execCommand(new CMDPass(bPlayer));
+    assertEquals(true, g.getPassHistory().isGameOver());
+    assertEquals(State.END_OF_GAME, g.getState());
   }
 
   private Game createGameForTests() {
     GameBuilder gb = new StandardGameBuilder();
 
-    Player p1 = new Player("Alice");
-    Player p2 = new Player("Bob");
+    Player p1 = new Player("Alice", 1234);
+    Player p2 = new Player("Bob", 4321);
     gb.setPlayer1(p1).setPlayer2(p2);
 
     Game g;

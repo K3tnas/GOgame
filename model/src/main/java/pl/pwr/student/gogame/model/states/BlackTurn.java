@@ -70,6 +70,10 @@ public class BlackTurn extends GameState {
 
   @Override
   public State pass(CMDPass command) {
+    if (command.playerId == whitePlayer.getId()) {
+      System.out.println("To nie jest twoja tura >:(");
+      return State.BLACK_TURN;
+    }
 
     passHistory.addPass();
     if (passHistory.isGameOver()) {

@@ -65,16 +65,39 @@ public class Server {
     }
   }
 
+  private void checkReady() {
+    if (user1 == null || user2 == null) {
+      return;
+    }
+
+    if (user1.isReady && user2.isReady) {
+      initializeGame();
+    }
+  }
+
   private void initializeGame() {
     GameBuilder gb = new StandardGameBuilder();
     gb.setPlayer1(user1).setPlayer2(user2);
     try {
       game = gb.buildGame();
+      game.startGame();
     } catch (PlayersNotSettledException e) {
       user1.output.println("SAY,Błąd serwera");
       user2.output.println("SAY,Błąd serwera");
       System.exit(1);
     }
+    if (user1.getId() == game.getBlackPlayerId()) {
+      user1.output.println("SAY,Grasz czarnymi");
+      user2.output.println("SAY,Grasz białymi");
+    } else {
+      user1.output.println("SAY,Grasz białymi");
+      user2.output.println("SAY,Grasz czarnymi");
+    }
+  }
+
+  private void broadcastMessage(String message) {
+    user1.output.println("SAY," + message);
+    user2.output.println("SAY," + message);
   }
 
   // W przyszłości możliwość rozszerzenia klasy Player w taki sposób, aby możliwa była gra z komputerowym przeciwnikiem
@@ -101,17 +124,9 @@ public class Server {
         e.printStackTrace();
       } finally {
         IO.println("Player " + this + " disconnected");
-        if (this.getId() == user1.getId()) {
-          user1 = null;
-        } else {
-          user2 = null;
-        }
+        // TODO: mądrzejszy sposób obsługi rozłączenia klienta: na razie kończymy działanie serwera
+        System.exit(0);
       }
-    }
-
-    private void broadcastMessage(String message) {
-      user1.output.println("SAY," + message);
-      user2.output.println("SAY," + message);
     }
 
     @Override
@@ -127,21 +142,7 @@ public class Server {
       output.println("SAY,Witaj " + getUsername() + "! Twoje ID to " + getId());
       isReady = true;
 
-      if (user2 == null || !user2.isReady) {
-        user1.output.println("SAY,Oczekiwanie na połączenie drugiego gracza");
-      } else {
-        initializeGame();
-
-        if (game.getBlackPlayerId() == user1.getId()) {
-          user1.output.println("SAY,Grasz czarnymi");
-          user2.output.println("SAY,Grasz białymi");
-        } else {
-          user1.output.println("SAY,Grasz białymi");
-          user2.output.println("SAY,Grasz czarnymi");
-        }
-
-        broadcastMessage(game.getBoard().toString());
-      }
+      checkReady();
     }
 
     private void processCommands() {

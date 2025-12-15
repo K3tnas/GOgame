@@ -2,15 +2,11 @@ package pl.pwr.student.gogame.client;
 
 import java.io.Console;
 import java.io.IOError;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Scanner;
 
 import pl.pwr.student.gogame.model.Game;
-import pl.pwr.student.gogame.model.builder.GameBuilder;
-import pl.pwr.student.gogame.model.builder.StandardGameBuilder;
 
 /**
  * A client for a multi-player tic tac toe game. Loosely based on an example in
@@ -63,11 +59,18 @@ class GoClient {
     }).start();
   }
 
+  private void printHelp() {
+    System.out.println("Tu będzie help");
+  }
+
   private void readUserInput() {
     String message;
     while (true) {
       try {
         message = c.readLine();
+        if ("HELP".equals(message)) {
+          printHelp();
+        }
         out.println(message);
       } catch (IOError e) {
         System.out.println("System console I/O error");

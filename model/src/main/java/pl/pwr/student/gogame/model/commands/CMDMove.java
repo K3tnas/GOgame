@@ -12,7 +12,6 @@ public class CMDMove extends Command {
 
   @Override
   public String toString() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'toString'");
+    return this.commandType.name() + "," + this.playerId + "," + this.x + "," + this.y;
   }
 }

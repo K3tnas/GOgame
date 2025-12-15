@@ -5,7 +5,6 @@ import java.util.Random;
 import pl.pwr.student.gogame.model.Game;
 import pl.pwr.student.gogame.model.board.Board;
 import pl.pwr.student.gogame.model.rules.RuleSet;
-import pl.pwr.student.gogame.model.rules.ConcreteRules.YouShallNotSuicide;
 import pl.pwr.student.gogame.model.rules.ConcreteRules.YouShallPlaceStoneOnlyOnEmptyPlace;
 import pl.pwr.student.gogame.model.exceptions.PlayersNotSettledException;
 
@@ -38,10 +37,10 @@ public class StandardGameBuilder extends GameBuilder {
       rand = new Random();
     }
 
-    if (rand.nextInt() % 2 == 1) {
-      return new Game(new Board(boardWidth), player1, player2, ruleSet, rand);
+    if (isColorRandomizationUsed && rand.nextInt() % 2 == 1) {
+      return new Game(new Board(boardWidth), player2, player1, ruleSet, rand);
     }
 
-    return new Game(new Board(boardWidth), player2, player1, ruleSet, rand);
+    return new Game(new Board(boardWidth), player1, player2, ruleSet, rand);
   }
 }

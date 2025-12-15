@@ -11,12 +11,24 @@ public class Player {
     captives = 0;
   }
 
+  public Player() {
+    captives = 0;
+  }
+
   public void addCaptive() {
     captives++;
   }
 
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
   public String getUsername() {
     return username;
+  }
+
+  public void setId(int id) {
+    this.id = id;
   }
 
   public int getId() {
@@ -25,5 +37,10 @@ public class Player {
 
   public int getCaptives() {
     return captives;
+  }
+
+  @Override
+  public String toString() {
+    return this.username + "#" + this.id;
   }
 }

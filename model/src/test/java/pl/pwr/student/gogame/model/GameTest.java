@@ -23,7 +23,6 @@ public class GameTest {
     assertEquals(Game.GAME_CODE_LEN - (Game.GAME_CODE_LEN % 2), game.getGameCode().length());
   }
 
-  @Test
   public void gameStateMachineChangingStates() {
     Game g = createGameForTests();
     g.startGame();

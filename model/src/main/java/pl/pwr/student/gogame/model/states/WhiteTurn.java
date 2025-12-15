@@ -40,7 +40,14 @@ public class WhiteTurn extends GameState {
     for (int i = 0; i < board.getWidth(); i++) {
       for (int j = 0; j < board.getHeight(); j++) {
         board.updateStone(i, j);
-        if (board.isBreathless(i, j)) {
+      
+        // jeśli nie ma kamienia na polu, to nie ma co zabić
+        if (board.getStone(i, j) == null) {
+          stonesToKill[i][j] = false;
+          continue;
+        }
+
+        if (!board.isEmpty(i, j) && board.getStone(i, j).isBreathless()) {
           stonesToKill[i][j] = true;
         } else {
           stonesToKill[i][j] = false;
@@ -70,6 +77,10 @@ public class WhiteTurn extends GameState {
 
   @Override
   public State pass(CMDPass command) {
+    if (command.playerId == blackPlayer.getId()) {
+      System.out.println("To nie jest twoja tura >:(");
+      return State.WHITE_TURN;
+    }
 
     passHistory.addPass();
     if (passHistory.isGameOver()) {

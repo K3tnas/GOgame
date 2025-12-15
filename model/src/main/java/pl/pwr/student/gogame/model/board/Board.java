@@ -96,6 +96,46 @@ public class Board {
     }
   }
 
+  @Override
+  public String toString() {
+    StringBuilder b = new StringBuilder();
+    b.append("   ");
+    for (int tensDigitColumn = 0; tensDigitColumn < getWidth(); ++ tensDigitColumn) {
+      int tens = tensDigitColumn / 10;
+      if (tens == 0) {
+        b.append("  ");
+      } else {
+        b.append(tens);
+        b.append(" ");
+      }
+    }
+    b.append("\n   ");
+    for (int tensDigitColumn = 0; tensDigitColumn < getWidth(); ++ tensDigitColumn) {
+      b.append(tensDigitColumn % 10);
+      b.append(" ");
+    }
+    b.append("\n");
+    for (int y = 0; y < this.getHeight(); ++y) {
+      b.append(String.format("%1$2s ", y));
+      for (int x = 0; x < this.getWidth(); ++x) {
+        Stone stone = getStone(x, y);
+
+        if (stone == null) {
+          b.append(". ");
+          continue;
+        }
+
+        if (stone.isBlack()) {
+          b.append("○ ");
+        } else {
+          b.append("● ");
+        }
+      }
+      b.append("\n");
+    }
+    return b.toString();
+  }
+
   public Board(int width) {
     this.fields = new Stone[width][width];
     this.removeAllStones();

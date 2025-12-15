@@ -208,7 +208,9 @@ public class Server {
             // powiadamiamy przeciwnika o wykonanym ruchu
             enemy.output.println(cmd.toString());
             // serwer wymusza ponowne wyświetlenie boarda
-            broadcastMessage(ServerCommand.PRINT_BOARD, "");
+            broadcastMessage(ServerCommand.PRINT_BOARD);
+
+            System.out.println(game.getBoard().toString());
           } else {
             // ruch się nie udał
             sendCommand(ServerCommand.SAY, "Nielegalny ruch", this);

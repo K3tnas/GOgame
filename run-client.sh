@@ -2,5 +2,13 @@
 
 # TODO: zmienić konfig mavena tak, aby można było wystartować klienta za pomocą mavena
 
+if [ -z ${JAVAFX_HOME} ]; then
+    echo "Ustaw zmienną środowiskową JAVAFX_HOME!"
+    exit
+fi
+
 mvn package &&\
-java -cp client/target/client-1.0-SNAPSHOT.jar:model/target/model-1.0-SNAPSHOT.jar pl.pwr.student.gogame.client.Client ${@}
+java --add-modules javafx.controls\
+     --module-path "$JAVAFX_HOME"/lib\
+     -cp client/target/client-1.0-SNAPSHOT.jar:model/target/model-1.0-SNAPSHOT.jar\
+     pl.pwr.student.gogame.client.Client ${@}

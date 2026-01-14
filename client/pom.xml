@@ -30,11 +30,16 @@
       <version>1.0-SNAPSHOT</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>11</version>
+    </dependency>
+
   </dependencies>
 
   <build>
     <plugins>
-
       <plugin>
         <groupId>com.github.davidmoten</groupId>
         <artifactId>plantuml-maven-plugin</artifactId>

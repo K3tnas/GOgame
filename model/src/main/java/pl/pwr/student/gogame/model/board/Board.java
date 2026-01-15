@@ -6,11 +6,6 @@ public class Board {
   private final Team[][][] boardHistory;
   private final int size;
 
-  /**
-   * jest to miejsce gdzie przeciwnik nie może postawić pionka w kolejnej rundzie, ponieważ może być
-   * tylko jedno takie miejsce. Jeżeli nie ma takiego miejsca ustawiamy na null TODO: na końcu tury
-   * ustawianie tego pola
-   */
   public Board(int size) {
     if (size < 2) {
       throw new IllegalArgumentException("Board is a square at least 2 x 2");

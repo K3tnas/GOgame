@@ -54,14 +54,8 @@ class GoClient {
     out = new PrintWriter(socket.getOutputStream(), true);
   }
 
-  public void connect() {
-    try {
-      awaitFromServer();
-    } catch (Exception e) {
-      System.out.println("Błąd w komunikacji z serwerem");
-      System.out.print(e.getMessage());
-      System.exit(1);
-    }
+  public void connect() throws Exception {
+    awaitFromServer();
   }
 
   public void onConnected() {

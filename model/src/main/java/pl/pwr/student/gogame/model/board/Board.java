@@ -1,145 +1,127 @@
 package pl.pwr.student.gogame.model.board;
 
+/** Board */
 public class Board {
-  private Stone[][] fields;
+  private final Field[][] fields;
+  private final Team[][][] boardHistory;
+  private final int size;
 
-  public Boolean isInside(Pos pos) {
-    return isInside(pos.x, pos.y);
+  /**
+   * jest to miejsce gdzie przeciwnik nie może postawić pionka w kolejnej rundzie, ponieważ może być
+   * tylko jedno takie miejsce. Jeżeli nie ma takiego miejsca ustawiamy na null TODO: na końcu tury
+   * ustawianie tego pola
+   */
+  public Board(int size) {
+    if (size < 2) {
+      throw new IllegalArgumentException("Board is a square at least 2 x 2");
+    }
+    this.size = size;
+    this.boardHistory = new Team[2][this.size][this.size];
+    this.fields = new Field[this.size][this.size];
+    setUpBoard();
   }
 
-  public Boolean isInside(int x, int y) {
-    return 0 <= x && x < this.getWidth() &&
-        0 <= y && y < this.getHeight();
-  }
-
-  public Boolean isEmpty(int x, int y) {
-    return fields[x][y] == null;
-  }
-
-  public static final Integer[][] NEIGHBOURS = {
-      { 1, 0 },
-      { 0, 1 },
-      { -1, 0 },
-      { 0, -1 }
-  };
-
-  public void removeAllStones() {
-    for (int y = 0; y < this.getHeight(); ++y) {
-      for (int x = 0; x < this.getWidth(); ++x) {
-        this.removeStone(x, y);
+  public void saveCurrState() {
+    boardHistory[0] = boardHistory[1];
+    for (int i = 0; i < size; i++) {
+      for (int j = 0; j < size; j++) {
+        boardHistory[1][i][j] = getField(i + 1, j + 1).getTeam();
       }
     }
   }
 
-  public void removeStone(int x, int y) {
-    this.fields[y][x] = null;
+  public Team[][] getYourPrevState() {
+    return boardHistory[0];
   }
 
-  public Stone getStone(int x, int y) {
-    return this.fields[y][x];
-  }
-
-  public void setStone(int x, int y, Boolean isBlack) {
-    this.fields[y][x] = new Stone(isBlack, getNeighbourFieldsCount(x, y));
-  }
-
-  public Integer getWidth() {
-    return fields[0].length;
-  }
-
-  public Integer getHeight() {
-    return fields.length;
-  }
-
-  public Integer getNeighbourFieldsCount(int x, int y) {
-    int count = 0;
-    for (Integer[] neigh : NEIGHBOURS) {
-      if (isInside(x + neigh[0], y + neigh[1])) {
-        ++count;
-      }
+  public Field getField(int x, int y) {
+    if (x < 1 || y < 1 || x > size || y > size) {
+      throw new IllegalArgumentException("Out of bounds");
     }
-    return count;
+    return fields[y - 1][x - 1];
   }
 
-  public boolean isBreathless(int x, int y) {
-    if (getStone(x, y) == null) {
-      return false;
-    }
-
-    return getStone(x, y).isBreathless();
-  }
-
-  public void updateStone(int x, int y) {
-    Stone stone = getStone(x, y);
-    if (stone == null) {
-      return;
-    }
-
-    stone.resetNeighbourCounters();
-
-    for (Integer[] neigh : NEIGHBOURS) {
-      int nx = x + neigh[0];
-      int ny = y + neigh[1];
-
-      if (!isInside(nx, ny)) {
-        continue;
-      }
-
-      Stone neighbour = getStone(nx, ny);
-      if (neighbour == null) {
-        continue;
-      }
-
-      if (neighbour.isBlack() == stone.isBlack()) {
-        stone.incAlly();
-      } else {
-        stone.incEnemy();
-      }
-    }
+  public int getSize() {
+    return this.size;
   }
 
   @Override
   public String toString() {
-    StringBuilder b = new StringBuilder();
-    b.append("   ");
-    for (int tensDigitColumn = 0; tensDigitColumn < getWidth(); ++tensDigitColumn) {
-      int tens = tensDigitColumn / 10;
-      if (tens == 0) {
-        b.append("  ");
-      } else {
-        b.append(tens);
+    final StringBuilder b = new StringBuilder();
+    final int max_num_length = Integer.toString(size).length();
+    for (int digit = 0; digit < max_num_length; digit++) {
+      for (int i = 0; i < max_num_length; i++) {
         b.append(" ");
       }
-    }
-    b.append("\n   ");
-    for (int tensDigitColumn = 0; tensDigitColumn < getWidth(); ++tensDigitColumn) {
-      b.append(tensDigitColumn % 10);
       b.append(" ");
-    }
-    b.append("\n");
-    for (int y = 0; y < this.getHeight(); ++y) {
-      b.append(String.format("%1$2s ", y));
-      for (int x = 0; x < this.getWidth(); ++x) {
-        Stone stone = getStone(x, y);
-
-        if (stone == null) {
-          b.append(". ");
-          continue;
-        }
-
-        if (stone.isBlack()) {
-          b.append("○ ");
+      for (int column = 1; column <= size; column++) {
+        if (column < (int) Math.pow(10, max_num_length - digit - 1)) {
+          b.append(" ");
         } else {
-          b.append("● ");
+          b.append(Math.abs((column / (int) Math.pow(10, max_num_length - digit - 1)) % 10));
         }
+        b.append(" ");
       }
-      b.append("\n");
+      b.append("\b\n");
+    }
+    for (int row = 1; row <= size; row++) {
+      final String rowNum = Integer.toString(row);
+      for (int i = 0; i < max_num_length - rowNum.length(); i++) {
+        b.append(" ");
+      }
+      b.append(rowNum);
+      b.append(" ");
+      for (int col = 0; col < size; col++) {
+        b.append(fields[row - 1][col].toString());
+        b.append(" ");
+      }
+      b.append("\b\n");
     }
     return b.toString();
   }
 
-  public Board(int width) {
-    this.fields = new Stone[width][width];
-    this.removeAllStones();
+  private void setUpBoard() {
+    for (int i = 0; i < size; i++) {
+      for (int j = 0; j < size; j++) {
+        fields[i][j] = new Field();
+        boardHistory[0][i][j] = Team.EMPTY;
+        boardHistory[1][i][j] = Team.EMPTY;
+      }
+    }
+
+    for (int i = 0; i < size; i++) {
+      for (int j = 0; j < size; j++) {
+
+        int neighbourCount = 0;
+        for (int di = -1; di <= 1; di++) {
+          for (int dj = -1; dj <= 1; dj++) {
+            if (Math.abs(di) + Math.abs(dj) != 1) continue;
+
+            final int ni = i + di;
+            final int nj = j + dj;
+            if (ni >= 0 && ni < size && nj >= 0 && nj < size) {
+              neighbourCount++;
+            }
+          }
+        }
+
+        final Field[] neighbours = new Field[neighbourCount];
+        int index = 0;
+
+        for (int di = -1; di <= 1; di++) {
+          for (int dj = -1; dj <= 1; dj++) {
+            if (Math.abs(di) + Math.abs(dj) != 1) continue;
+
+            final int ni = i + di;
+            final int nj = j + dj;
+            if (ni >= 0 && ni < size && nj >= 0 && nj < size) {
+              neighbours[index++] = fields[ni][nj];
+            }
+          }
+        }
+
+        fields[i][j].setNeighbours(neighbours);
+      }
+    }
   }
 }

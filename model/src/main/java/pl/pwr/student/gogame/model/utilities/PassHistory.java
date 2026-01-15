@@ -1,10 +1,10 @@
-package pl.pwr.student.gogame.model;
+package pl.pwr.student.gogame.model.utilities;
 
 public class PassHistory {
   private boolean[] lastPasses;
 
   public PassHistory() {
-    lastPasses = new boolean[] { false, false };
+    lastPasses = new boolean[] {false, false};
   }
 
   public void addPass() {
@@ -23,8 +23,7 @@ public class PassHistory {
 
   @Override
   public String toString() {
-    return String.format("PassHistory: [%s, %s]",
-        lastPasses[0] ? "PASS" : "MOVE",
-        lastPasses[1] ? "PASS" : "MOVE");
+    return String.format(
+        "PassHistory: [%s, %s]", lastPasses[0] ? "PASS" : "MOVE", lastPasses[1] ? "PASS" : "MOVE");
   }
 }

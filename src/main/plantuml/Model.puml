@@ -1,0 +1,85 @@
+@startuml
+
+package model.builder {
+  abstract GameBuilder {
+
+  }
+
+  class StandardGameBuilder {
+
+  }
+
+  StandardGameBuilder --|> GameBuilder
+}
+
+package model.exceptions {
+  class PlayersNotSettledException {
+
+  }
+}
+
+package model.rules {
+  class RuleSet {}
+
+  interface Rule {}
+
+  abstract class ComplexRule {}
+
+  package concreateRules {
+    class YouShallPlaceStoneOnlyOnEmptySpace {}
+  }
+
+  RuleSet --* ComplexRule
+  RuleSet *-- Rule
+  ComplexRule ..|> Rule
+  ComplexRule *--> Rule
+  YouShallPlaceStoneOnlyOnEmptySpace ..|> Rule
+}
+
+package model.states {
+  abstract GameState {}
+  class WhiteTurn {}
+  class BlackTurn {}
+  class EndOfGame {}
+  enum State {}
+
+  WhiteTurn --|> GameState
+  BlackTurn --|> GameState
+  EndOfGame --|> GameState
+}
+
+package model.commands {
+  abstract Command {}
+  class CMDPut {}
+  class CMDPass {}
+  enum CommandType {}
+
+  Command *-- CommandType
+  CMDPut --|> Command
+  CMDPass --|> Command
+}
+
+package model.board {
+  class Board {}
+  class Stone {}
+  Stone --* Board
+}
+
+package model {
+  class Game {}
+  class Player {}
+  class PassHistory {}
+
+  Game *-- PassHistory
+}
+
+GameBuilder ..> PlayersNotSettledException : throws
+GameBuilder --> RuleSet
+GameState --> RuleSet : has
+GameState ..> Command : handles
+Game o-- Player
+Game *-- Board
+Game ..> GameState : delegates to
+GameBuilder ..> Game : builds
+Game *-- State
+

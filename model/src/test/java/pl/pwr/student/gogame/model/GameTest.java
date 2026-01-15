@@ -1,108 +1,106 @@
 package pl.pwr.student.gogame.model;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.Random;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-
-import pl.pwr.student.gogame.model.builder.GameBuilder;
+import pl.pwr.student.gogame.model.board.Board;
+import pl.pwr.student.gogame.model.board.Team;
 import pl.pwr.student.gogame.model.builder.StandardGameBuilder;
-import pl.pwr.student.gogame.model.commands.CMDPut;
-import pl.pwr.student.gogame.model.commands.CMDPass;
-import pl.pwr.student.gogame.model.exceptions.PlayersNotSettledException;
-import pl.pwr.student.gogame.model.states.State;
+import pl.pwr.student.gogame.model.states.BlackTurn;
+import pl.pwr.student.gogame.model.states.WhiteTurn;
+import pl.pwr.student.gogame.model.utilities.Player;
 
 public class GameTest {
   @Test
-  public void gameCodeLengthTest() {
-    Random rand = new Random();
-    Game game = new Game(null, null, null, null, rand);
-    System.out.println("Kod gry: " + game.getGameCode());
-    assertEquals(Game.GAME_CODE_LEN - (Game.GAME_CODE_LEN % 2), game.getGameCode().length());
-  }
+  public void simpleGameTest() {
+    Game g = setup();
+    final int[][] moves = {{1, 1}, {1, 2}, {5, 5}, {2, 1}};
+    final String wit = g.getGameInfo().whitePlayer().getId();
+    final String bit = g.getGameInfo().blackPlayer().getId();
+    final Board b = g.getGameInfo().board();
+    int c = 0;
 
-  public void gameStateMachineChangingStates() {
-    Game g = createGameForTests();
-    g.startGame();
-    var bPlayer = g.getBlackPlayerId();
-    var wPlayer = g.getWhitePlayerId();
+    System.out.println(b);
+    System.out.println(g.getGameState());
 
-    // Zaczyna czarny
-    assertEquals(State.BLACK_TURN, g.getState());
-
-    // Test wykrwywania błędu
-    g.execCommand(new CMDPut(15, 15, bPlayer));
-    assertEquals(State.BLACK_TURN, g.getState());
-
-    // Poprawny ruch - zmiana rundy
-    g.execCommand(new CMDPut(1, 1, bPlayer));
-    assertEquals(State.WHITE_TURN, g.getState());
-    assertNotNull(g.getBoard().getStone(1, 1));
-
-    // Czarny gracz próbuje coś zrobić
-    // w nie swojej turze - brak zmiany
-    g.execCommand(new CMDPut(1, 1, bPlayer));
-    assertEquals(State.WHITE_TURN, g.getState());
-
-    // biały gracz próbuje postawić piona na niepuste pole
-    // brak zmiany
-    g.execCommand(new CMDPut(1, 1, wPlayer));
-    assertEquals(State.WHITE_TURN, g.getState());
-
-    // biały gracz passuje - zmiana
-    g.execCommand(new CMDPass(wPlayer));
-    assertEquals(State.BLACK_TURN, g.getState());
-
-    // koniec gry
-    g.execCommand(new CMDPass(bPlayer));
-    assertEquals(true, g.getPassHistory().isGameOver());
-    assertEquals(State.END_OF_GAME, g.getState());
+    for (int[] m : moves) {
+      String id = (c % 2 == 0 ? wit : bit);
+      if (c % 2 == 0) {
+        assertTrue(g.getGameState() instanceof WhiteTurn);
+      } else {
+        assertTrue(g.getGameState() instanceof BlackTurn);
+      }
+      g.putStone(m[0], m[1], id);
+      System.out.println(b);
+      System.out.println(g.getGameState());
+      c++;
+    }
   }
 
   @Test
-  public void killTest() {
-    Game g = createGameForTests();
-    g.startGame();
-    var bPlayer = g.getBlackPlayerId();
-    var wPlayer = g.getWhitePlayerId();
+  public void gameTest1() {
+    Game g = setup();
+    final int[][] moves = {{1, 1}, {2, 1}, {1, 2}, {1, 3}, {2, 2}, {2, 3}, {5, 5}, {3, 2}};
+    final String wit = g.getGameInfo().whitePlayer().getId();
+    final String bit = g.getGameInfo().blackPlayer().getId();
+    final Board b = g.getGameInfo().board();
+    int c = 0;
 
-    g.execCommand(new CMDPut(0, 0, bPlayer));
-    g.execCommand(new CMDPut(1, 0, wPlayer));
-    g.execCommand(new CMDPass(bPlayer));
-    g.execCommand(new CMDPut(0, 1, wPlayer));
+    System.out.println(b);
+    System.out.println(g.getGameState());
 
-    assertEquals(true, g.getBoard().isEmpty(0, 0));
-
-    g.execCommand(new CMDPut(4, 4, bPlayer));
-    g.execCommand(new CMDPut(5, 4, wPlayer));
-    assertNotNull(g.getBoard().getStone(4, 4));
-    g.execCommand(new CMDPass(bPlayer));
-    g.execCommand(new CMDPut(4, 5, wPlayer));
-    assertNotNull(g.getBoard().getStone(4, 4));
-    g.execCommand(new CMDPass(bPlayer));
-    g.execCommand(new CMDPut(3, 4, wPlayer));
-    assertNotNull(g.getBoard().getStone(4, 4));
-    g.execCommand(new CMDPass(bPlayer));
-    g.execCommand(new CMDPut(4, 3, wPlayer));
-    assertEquals(true, g.getBoard().isEmpty(4, 4));
+    for (int[] m : moves) {
+      String id = (c % 2 == 0 ? wit : bit);
+      if (c % 2 == 0) {
+        assertTrue(g.getGameState() instanceof WhiteTurn);
+      } else {
+        assertTrue(g.getGameState() instanceof BlackTurn);
+      }
+      g.putStone(m[0], m[1], id);
+      System.out.println(b);
+      System.out.println(g.getGameState());
+      c++;
+    }
   }
 
-  private Game createGameForTests() {
-    GameBuilder gb = new StandardGameBuilder();
+  @Test
+  public void gameTest2() {
+    Game g = setup();
+    final int[][] moves = {{2, 1}, {3, 1}, {1, 2}, {4, 2}, {3, 2}, {3, 3}, {2, 3}, {2, 2}};
+    final String wit = g.getGameInfo().whitePlayer().getId();
+    final String bit = g.getGameInfo().blackPlayer().getId();
+    final Board b = g.getGameInfo().board();
+    int c = 0;
 
-    Player p1 = new Player("Alice", 1234);
-    Player p2 = new Player("Bob", 4321);
-    gb.setPlayer1(p1).setPlayer2(p2);
+    System.out.println(b);
+    System.out.println(g.getGameState());
 
-    Game g;
-
-    try {
-      g = gb.buildGame();
-      return g;
-    } catch (PlayersNotSettledException e) {
-      return null;
+    for (int[] m : moves) {
+      String id = (c % 2 == 0 ? wit : bit);
+      if (c % 2 == 0) {
+        assertTrue(g.getGameState() instanceof WhiteTurn);
+      } else {
+        assertTrue(g.getGameState() instanceof BlackTurn);
+      }
+      g.putStone(m[0], m[1], id);
+      System.out.println(b);
+      System.out.println(g.getGameState());
+      c++;
     }
+
+    assertFalse(g.getGameInfo().ruleset().meetsRules(b, 3, 2, Team.WHITE));
+    g.putStone(3, 2, wit);
+
+    // illegal move so the state doesnt change
+    assertTrue(g.getGameState() instanceof WhiteTurn);
+  }
+
+  private Game setup() {
+    StandardGameBuilder gb = new StandardGameBuilder();
+    gb.addPlayer(new Player("asdf"));
+    gb.addPlayer(new Player("zxcv"));
+    Game g = gb.buildGame();
+    return g;
   }
 }

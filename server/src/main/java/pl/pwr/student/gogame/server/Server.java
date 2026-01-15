@@ -4,39 +4,14 @@ package pl.pwr.student.gogame.server;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
-
-/**
- * A server for a multi-player tic tac toe game. Loosely based on an example in
- * Deitel and Deitel’s “Java How to Program” book from the late 1990s. For this
- * project I created a new application-level protocol called TTTP (for Tic Tac
- * Toe Protocol), which is entirely plain text. The messages of TTTP are:
- *
- * Client -> Server
- *     MOVE <n>
- *     QUIT
- *
- * Server -> Client
- *
- *     WELCOME <char>
- *     VALID_MOVE
- *     OTHER_PLAYER_MOVED <n>
- *     OTHER_PLAYER_LEFT
- *     VICTORY
- *     DEFEAT
- *     TIE
- *     MESSAGE <text>
- */
-
 import java.net.Socket;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 
 import pl.pwr.student.gogame.model.Game;
-import pl.pwr.student.gogame.model.Player;
 import pl.pwr.student.gogame.model.builder.GameBuilder;
 import pl.pwr.student.gogame.model.builder.StandardGameBuilder;
-import pl.pwr.student.gogame.model.commands.ClientCommand;
-import pl.pwr.student.gogame.model.exceptions.PlayersNotSettledException;
+import pl.pwr.student.gogame.model.utilities.Player;
 
 public class Server {
   // TODO: wiele gier na jednym serwerze jednocześnie
@@ -74,7 +49,8 @@ public class Server {
     WHITE_PLAYER,
     CONNECTED,
     SET_PLAYER,
-    SET_ENEMY
+    SET_ENEMY,
+    UPDATE_GAMEINFO
   }
 
   private void checkPlayersReady() {
@@ -93,21 +69,17 @@ public class Server {
 
   private void initializeGame() {
     GameBuilder gb = new StandardGameBuilder();
-    gb.setPlayer1(user1).setPlayer2(user2);
-    try {
-      game = gb.buildGame();
-      game.startGame();
-    } catch (PlayersNotSettledException e) {
-      broadcastMessage(ServerCommand.SAY, "Błąd serwera");
-      System.exit(1);
-    }
-    if (user1.getId() == game.getBlackPlayerId()) {
-      sendCommand(ServerCommand.BLACK_PLAYER, null, user1);
-      sendCommand(ServerCommand.WHITE_PLAYER, null, user2);
-    } else {
-      sendCommand(ServerCommand.WHITE_PLAYER, null, user1);
-      sendCommand(ServerCommand.BLACK_PLAYER, null, user2);
-    }
+    gb.addPlayer(user1).addPlayer(user2);
+    game = gb.buildGame();
+    broadcastMessage(ServerCommand.UPDATE_GAMEINFO, "");
+
+    // if (user1.getId() == game.getGameInfo().blackPlayer().getId()) {
+    //   sendCommand(ServerCommand.BLACK_PLAYER, null, user1);
+    //   sendCommand(ServerCommand.WHITE_PLAYER, null, user2);
+    // } else {
+    //   sendCommand(ServerCommand.WHITE_PLAYER, null, user1);
+    //   sendCommand(ServerCommand.BLACK_PLAYER, null, user2);
+    // }
 
     broadcastMessage(ServerCommand.GAME_START);
   }
@@ -141,7 +113,7 @@ public class Server {
     private User enemy;
 
     public User(Socket socket) throws IOException {
-      super();
+      super("user-" + idAutoincrement++);
       this.socket = socket;
       this.input = new Scanner(socket.getInputStream());
       this.output = new PrintWriter(socket.getOutputStream(), true);
@@ -167,54 +139,26 @@ public class Server {
 
     @Override
     public String toString() {
-      return getUsername()+","+getId();
+      return getId();
     }
 
     private void setup() {
       sendCommand(ServerCommand.CONNECTED, this);
-      sendCommand(ServerCommand.SAY, "Podaj swoje imię", this);
-
-      // TODO: sprawdzenie czemu w tym miejscu proces blokował się na in.nextLine()
-      setUsername("Player-tmp-name");
-      setId(idAutoincrement++);
-
       sendCommand(ServerCommand.SET_PLAYER, this.toString(), this);
-      sendCommand(ServerCommand.SAY, "Witaj " + getUsername() + "! Twoje ID to " + getId(), this);
+      sendCommand(ServerCommand.SAY, "Twoje ID to " + getId(), this);
       isReady = true;
 
       checkPlayersReady();
     }
 
     private void processCommands() {
-      String request;
-      ClientCommand cmd;
       while (input.hasNextLine()) {
-        request = input.nextLine();
-        if (request.startsWith("PUT") || request.startsWith("PASS")) {
-          if (game == null) {
-            sendCommand(ServerCommand.SAY, "Gra jeszcze się nie rozpoczęła", this);
-            continue;
-          }
-          try {
-            cmd = ClientCommand.fromString(request);
-            cmd.playerId = getId();
-          } catch (Exception e) {
-            sendCommand(ServerCommand.SAY, "Błędny format polecenia, zobacz HELP", this);
-            continue;
-          }
-          if (game.execCommand(cmd)) {
-            // ruch się udał
-            sendCommand(ServerCommand.SAY, "Ruch OK", this);
-            // powiadamiamy przeciwnika o wykonanym ruchu
-            enemy.output.println(cmd.toString());
-            // serwer wymusza ponowne wyświetlenie boarda
-            broadcastMessage(ServerCommand.PRINT_BOARD);
+        String[] request = input.nextLine().split(",");
+        String command = request[0];
 
-            System.out.println(game.getBoard().toString());
-          } else {
-            // ruch się nie udał
-            sendCommand(ServerCommand.SAY, "Nielegalny ruch", this);
-          }
+        if (game == null) {
+          sendCommand(ServerCommand.SAY, "Gra jeszcze się nie rozpoczęła", this);
+          continue;
         }
       }
     }

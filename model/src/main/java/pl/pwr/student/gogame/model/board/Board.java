@@ -1,5 +1,10 @@
 package pl.pwr.student.gogame.model.board;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.ParseException;
+
 /** Board */
 public class Board {
   private final Field[][] fields;
@@ -43,17 +48,17 @@ public class Board {
   @Override
   public String toString() {
     final StringBuilder b = new StringBuilder();
-    final int max_num_length = Integer.toString(size).length();
-    for (int digit = 0; digit < max_num_length; digit++) {
-      for (int i = 0; i < max_num_length; i++) {
+    final int maxNumLength = Integer.toString(size).length();
+    for (int digit = 0; digit < maxNumLength; digit++) {
+      for (int i = 0; i < maxNumLength; i++) {
         b.append(" ");
       }
       b.append(" ");
       for (int column = 1; column <= size; column++) {
-        if (column < (int) Math.pow(10, max_num_length - digit - 1)) {
+        if (column < (int) Math.pow(10, maxNumLength - digit - 1)) {
           b.append(" ");
         } else {
-          b.append(Math.abs((column / (int) Math.pow(10, max_num_length - digit - 1)) % 10));
+          b.append(Math.abs((column / (int) Math.pow(10, maxNumLength - digit - 1)) % 10));
         }
         b.append(" ");
       }
@@ -61,7 +66,7 @@ public class Board {
     }
     for (int row = 1; row <= size; row++) {
       final String rowNum = Integer.toString(row);
-      for (int i = 0; i < max_num_length - rowNum.length(); i++) {
+      for (int i = 0; i < maxNumLength - rowNum.length(); i++) {
         b.append(" ");
       }
       b.append(rowNum);
@@ -118,5 +123,39 @@ public class Board {
         fields[i][j].setNeighbours(neighbours);
       }
     }
+  }
+
+  // do użytku tylko na serwerze
+  public String toCSV() throws IOException {
+    StringBuilder sb = new StringBuilder("");
+    sb.append("SIZE," + size + ";");
+
+    // zapis planszy
+    for (int y = 1; y <= size; y++) {
+      for (int x = 1; x <= size; x++) {
+          sb.append(getField(x, y).getTeam().name());
+          if (x < size) {
+            sb.append(",");
+          }
+      }
+      sb.append(";");
+    }
+
+    return sb.toString();
+  }
+
+  // do użytku tylko na kliencie
+  public static Board fromCSV(String csv) throws Exception {
+    String[] csvFields = csv.split(";");
+    if (csvFields.length < 1) {
+      throw new ParseException(csv, 0);
+    }
+    String sizeField = csvFields[0];
+    int boardSize = Integer.parseInt(sizeField.split(",")[1]);
+    Board b = new Board(boardSize);
+    for (int rowIdx = 0; rowIdx < boardSize; ++rowIdx) {
+      String row = csvFields[rowIdx+1]; // +1 bo pierwsze csvField jest postaci SIZE,x;
+    }
+    return b;
   }
 }

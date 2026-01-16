@@ -15,15 +15,16 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 import pl.pwr.student.gogame.client.board.ConnectionManager;
 import pl.pwr.student.gogame.client.board.PutStone;
+import pl.pwr.student.gogame.client.board.SceneController;
+import pl.pwr.student.gogame.model.utilities.GameInfo;
 
 public class Client extends Application {
-  // private GoClient goClient;
   private ConnectionManager connMan;
+  private SceneController sceneController;
 
   /**
    * Tworzy pierwszy widok pokazywany przy uruchomieniu aplikacji
@@ -50,7 +51,7 @@ public class Client extends Application {
       String ip = ipInputField.getText();
       info.setText("Łączenie z " + ip);
       try {
-        connMan = new ConnectionManager(ip);
+        connMan = new ConnectionManager(ip, sceneController);
         connMan.start();
         rootScene.setRoot(playingView());
       } catch (IOException exc) {
@@ -66,22 +67,20 @@ public class Client extends Application {
     return root;
   }
 
-  // TODO: pobieranie z GameInfo
-  private static final int BOARD_SIZE = 9;
-
   private static final int CELL_SIZE = 40;
 
   private Parent playingView() {
     BorderPane root = new BorderPane();
 
     GridPane board = new GridPane();
-    board.setMaxHeight(BOARD_SIZE * CELL_SIZE);
-    board.setMaxWidth(BOARD_SIZE * CELL_SIZE);
+    int boardSize = gameInfo.board().getSize();
+    board.setMaxHeight(boardSize * CELL_SIZE);
+    board.setMaxWidth(boardSize * CELL_SIZE);
     board.setAlignment(Pos.TOP_LEFT);
     board.setStyle("-fx-background-color: #f76f3a;");
 
-    for (int row = 0; row < BOARD_SIZE; row++) {
-      for (int col = 0; col < BOARD_SIZE; col++) {
+    for (int row = 0; row < boardSize; row++) {
+      for (int col = 0; col < boardSize; col++) {
         StackPane cell = createCell(row, col);
         board.add(cell, col, row);
       }
@@ -97,8 +96,6 @@ public class Client extends Application {
 
     cell.setOnMouseClicked(e -> {
       connMan.queueCommand(new PutStone(row, col));
-      // Circle stone = new Circle(14, Color.BLACK);
-      // cell.getChildren().add(stone);
     });
 
     Pane lines = new Pane();
@@ -106,13 +103,14 @@ public class Client extends Application {
 
     double mid = CELL_SIZE / 2.0;
 
+    int boardSize = gameInfo.board().getSize();
     if (col > 0)
       lines.getChildren().add(new Line(0, mid, mid, mid));
-    if (col < BOARD_SIZE - 1)
+    if (col < boardSize - 1)
       lines.getChildren().add(new Line(mid, mid, CELL_SIZE, mid));
     if (row > 0)
       lines.getChildren().add(new Line(mid, 0, mid, mid));
-    if (row < BOARD_SIZE - 1)
+    if (row < boardSize - 1)
       lines.getChildren().add(new Line(mid, mid, mid, CELL_SIZE));
 
     lines.getChildren().forEach(n -> ((Line) n).setStroke(Color.BLACK));

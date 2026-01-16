@@ -2,11 +2,6 @@
 
 # TODO: zmienić konfig mavena tak, aby można było wystartować klienta za pomocą mavena
 
-if [ -z ${JAVAFX_HOME} ]; then
-    echo "Ustaw zmienną środowiskową JAVAFX_HOME!"
-    exit
-fi
-
 mvn package &&\
 java --add-modules javafx.controls\
      --module-path "$JAVAFX_HOME"/lib\

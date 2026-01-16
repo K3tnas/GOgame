@@ -18,7 +18,7 @@ public class ConnectionManager extends Thread {
     private final Scanner in;
     private final PrintWriter out;
 
-    public ConnectionManager(String serverIP) throws IOException {
+    public ConnectionManager(String serverIP, SceneController parentInterface) throws IOException {
         this.serverIP = serverIP;
         socket = new Socket(this.serverIP, 58901);
         in = new Scanner(socket.getInputStream());

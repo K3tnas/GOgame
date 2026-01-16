@@ -7,7 +7,7 @@ import java.util.Set;
 public class Field {
 
   private Team team;
-  private Field[] neighbourFields;
+  private transient Field[] neighbourFields;
 
   public Field() {
     team = Team.EMPTY;

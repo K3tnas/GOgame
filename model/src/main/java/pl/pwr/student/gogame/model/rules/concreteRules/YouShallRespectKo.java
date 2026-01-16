@@ -27,6 +27,7 @@ public class YouShallRespectKo implements Rule {
     for (int i = 1; i <= size; i++) {
       for (int j = 1; j <= size; j++) {
         var f = tempBoard.getField(i, j);
+        if (f.getTeam() == Team.EMPTY) continue;
         if (f.isBreathless() && f.getTeam() != team) toKill.add(f);
       }
     }

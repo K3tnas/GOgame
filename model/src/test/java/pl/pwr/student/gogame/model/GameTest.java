@@ -8,6 +8,7 @@ import pl.pwr.student.gogame.model.board.Board;
 import pl.pwr.student.gogame.model.board.Team;
 import pl.pwr.student.gogame.model.builder.StandardGameBuilder;
 import pl.pwr.student.gogame.model.states.BlackTurn;
+import pl.pwr.student.gogame.model.states.WhitePlayerWon;
 import pl.pwr.student.gogame.model.states.WhiteTurn;
 import pl.pwr.student.gogame.model.utilities.Player;
 
@@ -94,6 +95,32 @@ public class GameTest {
 
     // illegal move so the state doesnt change
     assertTrue(g.getGameState() instanceof WhiteTurn);
+  }
+
+  @Test
+  public void simpleChooseCorrectWinnerTest() {
+    final Game g = setup();
+    final Board b = g.getGameInfo().board();
+    final String wit = g.getGameInfo().whitePlayer().getId();
+    final String bit = g.getGameInfo().blackPlayer().getId();
+
+    int[][] black = {{2, 1}, {2, 2}, {1, 2}};
+    int[][] white = {{1, 4}, {2, 4}, {3, 4}, {4, 4}, {4, 3}, {4, 2}, {4, 1}};
+
+    for (int[] p : black) {
+      b.getField(p[0], p[1]).setTeam(Team.BLACK);
+    }
+
+    for (int[] p : white) {
+      b.getField(p[0], p[1]).setTeam(Team.WHITE);
+    }
+
+    System.out.println(b);
+    g.pass(wit);
+    g.pass(bit);
+
+    System.out.println(g.getGameState());
+    assertTrue(g.getGameState() instanceof WhitePlayerWon);
   }
 
   private Game setup() {

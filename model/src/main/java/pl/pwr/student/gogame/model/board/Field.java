@@ -1,5 +1,6 @@
 package pl.pwr.student.gogame.model.board;
 
+import com.sun.jdi.request.InvalidRequestStateException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,7 +27,41 @@ public class Field {
   }
 
   public boolean isBreathless() {
+    if (team == Team.EMPTY) throw new InvalidRequestStateException("this field's empty mate");
     return isBreathless(new HashSet<>());
+  }
+
+  public Team whoseTerritory() {
+    if (team != Team.EMPTY) throw new InvalidRequestStateException("this field aint't empty mate");
+    Team t = whoseTerritory(new HashSet<>());
+    return t == null ? Team.EMPTY : t;
+  }
+
+  // HACK: ALE JESTEM GOATEM
+  private Team whoseTerritory(Set<Field> visited) {
+    Team territory = null;
+    visited.add(this);
+
+    for (Field neighbor : neighbourFields) {
+      if (neighbor.team != Team.EMPTY) {
+
+        if (territory == null) territory = neighbor.team;
+        else if (territory != neighbor.team) return Team.EMPTY;
+
+      } else if (!visited.contains(neighbor)) {
+
+        Team nt = neighbor.whoseTerritory(visited);
+
+        if (nt == null) continue;
+
+        if (nt == Team.EMPTY) return Team.EMPTY;
+
+        if (territory == null) territory = nt;
+        else if (territory != nt) return Team.EMPTY;
+      }
+    }
+
+    return territory;
   }
 
   private boolean isBreathless(Set<Field> visited) {

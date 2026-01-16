@@ -17,7 +17,7 @@ public class Player {
     return id;
   }
 
-  public void addCaptives(int captives) {
-    this.captives += captives;
+  public void addCaptive() {
+    this.captives++;
   }
 }

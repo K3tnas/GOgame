@@ -22,8 +22,7 @@ public abstract class GameState {
 
     gameInfo.board().saveCurrState();
     gameInfo.board().getField(x, y).setTeam(team);
-    int captives = collectStones();
-    getPlayerByTeam(team).addCaptives(captives);
+    collectStones();
 
     return (this instanceof WhiteTurn ? new BlackTurn(gameInfo) : new WhiteTurn(gameInfo));
   }
@@ -45,17 +44,32 @@ public abstract class GameState {
   }
 
   protected GameState chooseWinner() {
+    Board b = gameInfo.board();
+    int size = b.getSize();
+    Team t;
 
-    // TODO:
-
-    return new BlackPlayerWon(gameInfo);
+    for (int i = 1; i <= size; i++) {
+      for (int j = 1; j <= size; j++) {
+        if (b.getField(i, j).getTeam() == Team.EMPTY) {
+          t = b.getField(i, j).whoseTerritory();
+          if (t != Team.EMPTY) getPlayerByTeam(t).addCaptive();
+        }
+      }
+    }
+    System.out.println("black points: " + gameInfo.blackPlayer().getCaptives());
+    System.out.println("white points: " + gameInfo.whitePlayer().getCaptives());
+    if (gameInfo.blackPlayer().getCaptives() == gameInfo.whitePlayer().getCaptives())
+      return new Tie(gameInfo);
+    return gameInfo.blackPlayer().getCaptives() < gameInfo.whitePlayer().getCaptives()
+        ? new WhitePlayerWon(gameInfo)
+        : new BlackPlayerWon(gameInfo);
   }
 
-  private int collectStones() {
+  private void collectStones() {
     final Board board = gameInfo.board();
     final int size = board.getSize();
     final ArrayList<Field> toKill = new ArrayList<>();
-    int counter = 0;
+    final Player p = getPlayerByTeam(team);
     Field temp;
 
     // WARNING: not optimal
@@ -72,10 +86,8 @@ public abstract class GameState {
 
     for (Field f : toKill) {
       f.setTeam(Team.EMPTY);
-      counter++;
+      p.addCaptive();
     }
-
-    return counter;
   }
 
   private final Player getPlayerByTeam(Team team) {

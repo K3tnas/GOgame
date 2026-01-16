@@ -14,7 +14,6 @@ import pl.pwr.student.gogame.model.builder.StandardGameBuilder;
 import pl.pwr.student.gogame.model.utilities.Player;
 
 public class Server {
-  // TODO: wiele gier na jednym serwerze jednocześnie
   private Game game;
 
   private User user1;
@@ -71,7 +70,6 @@ public class Server {
     GameBuilder gb = new StandardGameBuilder();
     gb.addPlayer(user1).addPlayer(user2);
     game = gb.buildGame();
-    broadcastMessage(ServerCommand.UPDATE_GAMEINFO, "");
 
     // if (user1.getId() == game.getGameInfo().blackPlayer().getId()) {
     //   sendCommand(ServerCommand.BLACK_PLAYER, null, user1);

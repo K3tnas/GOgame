@@ -1,5 +1,7 @@
 package pl.pwr.student.gogame.client;
 
+import java.io.IOException;
+
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -16,9 +18,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
+import pl.pwr.student.gogame.client.board.ConnectionManager;
+import pl.pwr.student.gogame.client.board.PutStone;
 
 public class Client extends Application {
-  private GoClient goClient;
+  // private GoClient goClient;
+  private ConnectionManager connMan;
 
   /**
    * Tworzy pierwszy widok pokazywany przy uruchomieniu aplikacji
@@ -32,28 +37,27 @@ public class Client extends Application {
     Label tLabel = new Label("Adres IP:");
     form.getChildren().add(tLabel);
 
-    TextField t = new TextField();
-    t.setPromptText("IP");
-    t.setMaxWidth(400);
-    form.getChildren().add(t);
+    TextField ipInputField = new TextField();
+    ipInputField.setPromptText("IP");
+    ipInputField.setMaxWidth(400);
+    form.getChildren().add(ipInputField);
     form.setAlignment(Pos.CENTER);
 
     Label info = new Label("");
 
-    Button b = new Button("Dołącz");
-    b.setOnMouseClicked(e -> {
-      String ip = t.getText();
+    Button connectButton = new Button("Dołącz");
+    connectButton.setOnMouseClicked(e -> {
+      String ip = ipInputField.getText();
+      info.setText("Łączenie z " + ip);
       try {
-        info.setText("Łączenie z " + ip);
+        connMan = new ConnectionManager(ip);
+        connMan.start();
         rootScene.setRoot(playingView());
-        goClient = new GoClient(ip);
-        goClient.connect();
-      } catch (Exception exc) {
+      } catch (IOException exc) {
         info.setText("Nie udało się połączyć z " + ip);
       }
-      info.setText("Połączono");
     });
-    form.getChildren().add(b);
+    form.getChildren().add(connectButton);
 
     form.getChildren().add(info);
 
@@ -63,7 +67,8 @@ public class Client extends Application {
   }
 
   // TODO: pobieranie z GameInfo
-  private static final int BOARD_SIZE = 19;
+  private static final int BOARD_SIZE = 9;
+
   private static final int CELL_SIZE = 40;
 
   private Parent playingView() {
@@ -91,10 +96,9 @@ public class Client extends Application {
     cell.setPrefSize(CELL_SIZE, CELL_SIZE);
 
     cell.setOnMouseClicked(e -> {
-      // TODO: Kolor pobieramy z gameInfo.board
-      // TODO: wysłanie put,row,col w tym miejscu do serwera
-      Circle stone = new Circle(14, Color.BLACK);
-      cell.getChildren().add(stone);
+      connMan.queueCommand(new PutStone(row, col));
+      // Circle stone = new Circle(14, Color.BLACK);
+      // cell.getChildren().add(stone);
     });
 
     Pane lines = new Pane();

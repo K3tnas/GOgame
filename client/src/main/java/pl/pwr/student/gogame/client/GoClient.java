@@ -10,6 +10,7 @@ import pl.pwr.student.gogame.model.Game;
 import pl.pwr.student.gogame.model.utilities.Player;
 
 // Pisane w oparciu o https://cs.lmu.edu/~ray/notes/javanetexamples/
+// Klient CLI
 class GoClient {
   private Game game;
 

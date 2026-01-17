@@ -124,7 +124,7 @@ public class Board {
   }
 
   // do użytku tylko na serwerze
-  public String toCSV() throws IOException {
+  public String toCSV() {
     StringBuilder sb = new StringBuilder("");
     sb.append("SIZE," + size + ";");
 
@@ -143,16 +143,24 @@ public class Board {
   }
 
   // do użytku tylko na kliencie
-  public static Board fromCSV(String csv) throws Exception {
+  public static Board fromCSV(String csv) throws NumberFormatException {
     String[] csvFields = csv.split(";");
-    if (csvFields.length < 1) {
-      throw new ParseException(csv, 0);
-    }
     String sizeField = csvFields[0];
     int boardSize = Integer.parseInt(sizeField.split(",")[1]);
     Board b = new Board(boardSize);
+    b.setUpBoard();
     for (int rowIdx = 0; rowIdx < boardSize; ++rowIdx) {
-      String row = csvFields[rowIdx + 1]; // +1 bo pierwsze csvField jest postaci SIZE,x;
+        String row = csvFields[rowIdx + 1]; // +1 bo pierwsze csvField jest postaci SIZE,x;
+        String[] fields = row.split(",");
+        for (int colIdx = 0; colIdx < boardSize; ++colIdx) {
+          Team team = Team.EMPTY;
+          for (Team t : Team.values()) {
+            if (t.name() == fields[colIdx]) {
+              team = t;
+            }
+          }
+          b.fields[rowIdx][colIdx].setTeam(team);
+        }
     }
     return b;
   }

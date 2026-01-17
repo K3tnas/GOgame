@@ -1,30 +1,43 @@
 package pl.pwr.student.gogame.client;
 
 import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 import pl.pwr.student.gogame.client.board.ConnectionManager;
+import pl.pwr.student.gogame.client.board.GUICommand;
 import pl.pwr.student.gogame.client.board.PutStone;
-import pl.pwr.student.gogame.client.board.SceneController;
-import pl.pwr.student.gogame.model.utilities.GameInfo;
+import pl.pwr.student.gogame.client.board.RedrawBoard;
+import pl.pwr.student.gogame.client.board.Say;
+import pl.pwr.student.gogame.model.board.Board;
+import pl.pwr.student.gogame.model.board.Team;
 
 public class Client extends Application {
   private ConnectionManager connMan;
-  private SceneController sceneController;
+  private Board board;
+  private GridPane boardPane;
 
   /**
    * Tworzy pierwszy widok pokazywany przy uruchomieniu aplikacji
@@ -51,7 +64,7 @@ public class Client extends Application {
       String ip = ipInputField.getText();
       info.setText("Łączenie z " + ip);
       try {
-        connMan = new ConnectionManager(ip, sceneController);
+        connMan = new ConnectionManager(ip, this);
         connMan.start();
         rootScene.setRoot(playingView());
       } catch (IOException exc) {
@@ -68,42 +81,48 @@ public class Client extends Application {
   }
 
   private static final int CELL_SIZE = 40;
+  // TODO: ustawianie z tego co przyszło po SIZE,
+  private static final int BOARD_SIZE = 11;
+
+  private int boardPositionToGridPaneIndex(int row, int col) {
+    return row * BOARD_SIZE + col;
+  }
 
   private Parent playingView() {
     BorderPane root = new BorderPane();
 
-    GridPane board = new GridPane();
-    int boardSize = gameInfo.board().getSize();
-    board.setMaxHeight(boardSize * CELL_SIZE);
-    board.setMaxWidth(boardSize * CELL_SIZE);
-    board.setAlignment(Pos.TOP_LEFT);
-    board.setStyle("-fx-background-color: #f76f3a;");
+    boardPane = new GridPane();
+    int boardSize = BOARD_SIZE;
+    boardPane.setMaxHeight(boardSize * CELL_SIZE);
+    boardPane.setMaxWidth(boardSize * CELL_SIZE);
+    boardPane.setAlignment(Pos.TOP_LEFT);
+    boardPane.setStyle("-fx-background-color: #f76f3a;");
 
     for (int row = 0; row < boardSize; row++) {
       for (int col = 0; col < boardSize; col++) {
-        StackPane cell = createCell(row, col);
-        board.add(cell, col, row);
+        StackPane cell = createCell(row, col, Team.EMPTY);
+        boardPane.add(cell, col, row);
       }
     }
 
-    root.setCenter(board);
+    HBox boardAndChatContainer = new HBox();
+    boardAndChatContainer.getChildren().add(boardPane);
+    boardAndChatContainer.getChildren().add(chatWindow());
+
+    root.setCenter(boardAndChatContainer);
     return root;
   }
 
-  private StackPane createCell(int row, int col) {
+  private StackPane createCell(int row, int col, Team t) {
     StackPane cell = new StackPane();
     cell.setPrefSize(CELL_SIZE, CELL_SIZE);
-
-    cell.setOnMouseClicked(e -> {
-      connMan.queueCommand(new PutStone(row, col));
-    });
 
     Pane lines = new Pane();
     lines.setPrefSize(CELL_SIZE, CELL_SIZE);
 
     double mid = CELL_SIZE / 2.0;
 
-    int boardSize = gameInfo.board().getSize();
+    int boardSize = BOARD_SIZE;
     if (col > 0)
       lines.getChildren().add(new Line(0, mid, mid, mid));
     if (col < boardSize - 1)
@@ -117,7 +136,43 @@ public class Client extends Application {
 
     cell.getChildren().add(lines);
 
+    if (t == Team.EMPTY) {
+      cell.setOnMouseClicked(e -> {
+        connMan.queueCommand(new PutStone(row, col));
+      });
+    } else {
+      Circle c = new Circle(14, (t == Team.BLACK ? Color.BLACK : Color.WHITE));
+      cell.getChildren().add(c);
+    }
+
     return cell;
+  }
+
+  private VBox messagesBox;
+  private BorderPane chatWindow() {
+    messagesBox = new VBox(8);
+    messagesBox.setPadding(new Insets(10));
+
+    ScrollPane scrollPane = new ScrollPane(messagesBox);
+    scrollPane.setFitToWidth(true);
+    scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+
+    TextField input = new TextField();
+
+    Button send = new Button("Send");
+
+    send.setOnAction(e -> connMan.queueCommand(new Say(input.getText())));  // na przycisk Send
+    input.setOnAction(e -> connMan.queueCommand(new Say(input.getText()))); // na enter wysłanie
+
+    HBox inputBox = new HBox(8, input, send);
+    inputBox.setPadding(new Insets(10));
+    HBox.setHgrow(input, Priority.ALWAYS);
+
+    BorderPane root = new BorderPane();
+    root.setCenter(scrollPane);
+    root.setBottom(inputBox);
+
+    return root;
   }
 
   private Scene rootScene;
@@ -132,5 +187,48 @@ public class Client extends Application {
   @Override
   public void start(Stage primaryStage) throws Exception {
     initGUI(primaryStage);
+
+    new Thread(this::awaitGUICommands).start();
+  }
+
+  private final BlockingQueue<GUICommand> commands = new LinkedBlockingQueue<GUICommand>();
+  /**
+   * Zakolejkuj polecenie, które ma zostać zastosowane dla okienka
+   */
+  public void queueCommand(GUICommand cmd) {
+    commands.add(cmd);
+  }
+  private void awaitGUICommands() {
+    while (true) {
+      GUICommand cmd = null;
+      try {
+        cmd = commands.poll(1, TimeUnit.MINUTES);
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+
+      if (cmd == null) {
+        // TODO: obsługa timeoutu metody .poll (?)
+      } else {
+        if (cmd instanceof RedrawBoard) {
+          this.board = ((RedrawBoard)cmd).getBoard();
+          Platform.runLater(() -> {
+            redrawBoard();
+          });
+        }
+      }
+
+      cmd = null;
+    }
+  }
+
+  private void redrawBoard() {
+    boardPane.getChildren().clear();
+    for (int row = 1; row <= BOARD_SIZE; ++row) {
+      for (int col = 1; col <= BOARD_SIZE; ++col) {
+        boardPane.getChildren().add(createCell(row, col, board.getField(col, row).getTeam()));
+      }
+    }
   }
 }

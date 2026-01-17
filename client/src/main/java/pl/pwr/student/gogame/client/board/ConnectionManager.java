@@ -3,22 +3,28 @@ package pl.pwr.student.gogame.client.board;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.text.ParseException;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import pl.pwr.student.gogame.client.Client;
+import pl.pwr.student.gogame.model.board.Board;
+
 /**
  * Wątek obsługujący komunikację z serwerem
  */
 public class ConnectionManager extends Thread {
-    private final BlockingQueue<BoardCommand> commands = new LinkedBlockingQueue<BoardCommand>();
+    private final BlockingQueue<GUICommand> commands = new LinkedBlockingQueue<GUICommand>();
     private final String serverIP;
     private final Socket socket;
     private final Scanner in;
     private final PrintWriter out;
+    private final Client parent;
 
-    public ConnectionManager(String serverIP, SceneController parentInterface) throws IOException {
+    public ConnectionManager(String serverIP, Client parent) throws IOException {
+        this.parent = parent;
         this.serverIP = serverIP;
         socket = new Socket(this.serverIP, 58901);
         in = new Scanner(socket.getInputStream());
@@ -28,7 +34,7 @@ public class ConnectionManager extends Thread {
     /**
      * Zakolejkuj polecenie, które ma zostać wysłane do serwera
      */
-    public void queueCommand(BoardCommand cmd) {
+    public void queueCommand(GUICommand cmd) {
         commands.add(cmd);
     }
 
@@ -36,8 +42,10 @@ public class ConnectionManager extends Thread {
      * Kod wątku wysyłającego polecenia do serwera
      */
     public void run() {
+        // new Thread(this::receive).start();
+
         while (true) {
-            BoardCommand cmd = null;
+            GUICommand cmd = null;
             try {
                 cmd = commands.poll(1, TimeUnit.MINUTES);
             } catch (InterruptedException e) {
@@ -62,7 +70,18 @@ public class ConnectionManager extends Thread {
         while (in.hasNextLine()) {
             String serverCommand = in.nextLine();
             // TODO: implementacja updateowania planszy zamiast wypisywania co przyszło
-            System.out.println(serverCommand);
+            if (serverCommand.startsWith("SIZE")) {
+                try {
+                    Board newBoardToUpdate = Board.fromCSV(serverCommand);
+                    parent.queueCommand(new RedrawBoard(newBoardToUpdate));
+                } catch (Exception e) {
+                    System.out.println(e.getLocalizedMessage());
+                }
+            } else if (serverCommand.startsWith("SAY")) {
+                System.out.println("Serwer: " + serverCommand);
+                parent.queueCommand(new Say(serverCommand.split(",")[1]));
+            }
         }
     }
+
 }

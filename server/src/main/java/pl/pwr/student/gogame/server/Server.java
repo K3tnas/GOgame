@@ -9,9 +9,11 @@ import java.util.Scanner;
 import java.util.concurrent.Executors;
 
 import pl.pwr.student.gogame.model.Game;
+import pl.pwr.student.gogame.model.builder.StandardGameBuilder;
 import pl.pwr.student.gogame.model.utilities.Player;
 
 public class Server {
+  private StandardGameBuilder gb = new StandardGameBuilder();
   private Game game;
 
   private User user1;
@@ -48,16 +50,41 @@ public class Server {
     }
 
     @Override
+    public String toString() {
+      return getId();
+    }
+
+    @Override
     public void run() {
       try (socket) {
-        // setup();
-        // processCommands();
+        setup();
+        processCommands();
       } catch (Exception e) {
         e.printStackTrace();
       } finally {
         IO.println("Player " + this + " disconnected");
         // TODO: mądrzejszy sposób obsługi rozłączenia klienta: na razie kończymy działanie serwera
         System.exit(0);
+      }
+    }
+
+    private void setup() {
+      gb.addPlayer(this);
+      try {
+        game = gb.buildGame();
+      } catch (RuntimeException e) {
+        output.println("SAY,Oczekiwanie na dołączenie drugiego gracza...");
+      }
+    }
+
+    private void processCommands() {
+      while (input.hasNextLine()) {
+        String request = input.nextLine();
+        System.out.println(this + ": " + request);
+
+        if (game != null) {
+          output.println(game.getGameInfo().)
+        }
       }
     }
   }

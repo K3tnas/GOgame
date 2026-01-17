@@ -5,7 +5,7 @@ import pl.pwr.student.gogame.model.states.WhiteTurn;
 import pl.pwr.student.gogame.model.utilities.GameInfo;
 
 public class Game {
-  private transient GameState gameState;
+  private GameState gameState;
   private final GameInfo gameInfo;
 
   public Game(GameInfo gameInfo) {

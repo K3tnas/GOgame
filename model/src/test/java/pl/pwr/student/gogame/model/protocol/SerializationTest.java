@@ -2,7 +2,6 @@ package pl.pwr.student.gogame.model.protocol;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.gson.Gson;
 import org.junit.Test;
 import pl.pwr.student.gogame.model.Game;
 import pl.pwr.student.gogame.model.board.Board;
@@ -13,9 +12,15 @@ public class SerializationTest {
   @Test
   public void serialization() {
     Game g = setup();
-    String serialized = new Gson().toJson(g.getGameInfo().board());
-    Board deserializedBoard = new Gson().fromJson(serialized, Board.class);
-    assertEquals(g.getGameInfo().board(), deserializedBoard);
+    String serialized = "";
+    try {
+      serialized = g.getGameInfo().board().toCSV();
+    } catch (Exception e) {
+      System.out.println(e.getLocalizedMessage());
+    }
+    System.out.println(serialized);
+    Board b = Board.fromCSV(serialized);
+    assertEquals(b.toCSV(), serialized);
   }
 
   private static Game setup() {

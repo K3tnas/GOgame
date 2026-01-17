@@ -27,7 +27,7 @@ public class StandardGameBuilder extends GameBuilder {
   }
 
   @Override
-  public Game buildGame() {
+  public Game buildGame() throws RuntimeException {
     if (p1 == null || p2 == null) {
       throw new RuntimeException("Players not settled");
     }

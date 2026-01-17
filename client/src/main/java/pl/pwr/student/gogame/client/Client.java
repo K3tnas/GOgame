@@ -1,12 +1,8 @@
 package pl.pwr.student.gogame.client;
 
 import java.io.IOException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -27,9 +23,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 import pl.pwr.student.gogame.client.board.ConnectionManager;
-import pl.pwr.student.gogame.client.board.GUICommands.GUICommand;
 import pl.pwr.student.gogame.client.board.GUICommands.PutStone;
-import pl.pwr.student.gogame.client.board.GUICommands.RedrawBoard;
 import pl.pwr.student.gogame.client.board.GUICommands.Say;
 import pl.pwr.student.gogame.model.board.Board;
 import pl.pwr.student.gogame.model.board.Team;
@@ -97,8 +91,11 @@ public class Client extends Application {
 
     boardPane = new GridPane();
     int boardSize = BOARD_SIZE;
-    boardPane.setMaxHeight(boardSize * CELL_SIZE);
-    boardPane.setMaxWidth(boardSize * CELL_SIZE);
+    int boardPixelSize = boardSize * CELL_SIZE;
+    boardPane.setMaxHeight(boardPixelSize);
+    boardPane.setMaxWidth(boardPixelSize);
+    boardPane.setMinHeight(boardPixelSize);
+    boardPane.setMinWidth(boardPixelSize);
     boardPane.setAlignment(Pos.TOP_LEFT);
     boardPane.setStyle("-fx-background-color: #f76f3a;");
 
@@ -184,6 +181,11 @@ public class Client extends Application {
   private Scene rootScene;
 
   private void initGUI(Stage s) {
+    // Wymusza zamknięcie pozostałych wątków po zamknięciu okna
+    s.setOnCloseRequest(e -> {
+      System.exit(0);
+    });
+
     s.setTitle("GO");
     rootScene = new Scene(welcomeView());
     s.setScene(rootScene);
@@ -199,9 +201,9 @@ public class Client extends Application {
 
   public void redrawBoard() {
     boardPane.getChildren().clear();
-    for (int row = 1; row <= BOARD_SIZE; ++row) {
-      for (int col = 1; col <= BOARD_SIZE; ++col) {
-        boardPane.getChildren().add(createCell(row, col, board.getField(col, row).getTeam()));
+    for (int row = 0; row < BOARD_SIZE; ++row) {
+      for (int col = 0; col < BOARD_SIZE; ++col) {
+        boardPane.add(createCell(row, col, board.getField(col+1, row+1).getTeam()), col, row);
       }
     }
   }

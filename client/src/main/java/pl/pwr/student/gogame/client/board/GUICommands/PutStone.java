@@ -1,4 +1,4 @@
-package pl.pwr.student.gogame.client.board;
+package pl.pwr.student.gogame.client.board.GUICommands;
 
 public class PutStone implements GUICommand {
     private int row;
@@ -9,6 +9,7 @@ public class PutStone implements GUICommand {
         this.row = row;        
     }
 
+    @Override
     public String toString() {
         return "PUT," + this.col + "," + this.row + ";";
     }

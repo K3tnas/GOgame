@@ -83,7 +83,7 @@ public class Server {
         System.out.println(this + ": " + request);
 
         if (game != null) {
-          output.println(game.getGameInfo().)
+          output.println(game.getGameInfo().board().toCSV());
         }
       }
     }

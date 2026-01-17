@@ -3,13 +3,14 @@ package pl.pwr.student.gogame.client.board;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.text.ParseException;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import javafx.application.Platform;
 import pl.pwr.student.gogame.client.Client;
+import pl.pwr.student.gogame.client.board.GUICommands.GUICommand;
 import pl.pwr.student.gogame.model.board.Board;
 
 /**
@@ -42,7 +43,7 @@ public class ConnectionManager extends Thread {
      * Kod wątku wysyłającego polecenia do serwera
      */
     public void run() {
-        // new Thread(this::receive).start();
+        new Thread(this::receive).start();
 
         while (true) {
             GUICommand cmd = null;
@@ -69,17 +70,16 @@ public class ConnectionManager extends Thread {
     public void receive() {
         while (in.hasNextLine()) {
             String serverCommand = in.nextLine();
-            // TODO: implementacja updateowania planszy zamiast wypisywania co przyszło
             if (serverCommand.startsWith("SIZE")) {
                 try {
-                    Board newBoardToUpdate = Board.fromCSV(serverCommand);
-                    parent.queueCommand(new RedrawBoard(newBoardToUpdate));
+                    parent.setBoard(Board.fromCSV(serverCommand));
+                    Platform.runLater(parent::redrawBoard);
                 } catch (Exception e) {
                     System.out.println(e.getLocalizedMessage());
                 }
             } else if (serverCommand.startsWith("SAY")) {
-                System.out.println("Serwer: " + serverCommand);
-                parent.queueCommand(new Say(serverCommand.split(",")[1]));
+                String message = serverCommand.split(",")[1];
+                Platform.runLater(() -> parent.sayInChat("Serwer: " + message));
             }
         }
     }

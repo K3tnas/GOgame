@@ -18,7 +18,6 @@ public class SerializationTest {
     } catch (Exception e) {
       System.out.println(e.getLocalizedMessage());
     }
-    System.out.println(serialized);
     Board b = Board.fromCSV(serialized);
     assertEquals(b.toCSV(), serialized);
   }

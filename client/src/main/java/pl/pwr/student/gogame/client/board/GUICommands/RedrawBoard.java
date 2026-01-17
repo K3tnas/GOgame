@@ -1,4 +1,4 @@
-package pl.pwr.student.gogame.client.board;
+package pl.pwr.student.gogame.client.board.GUICommands;
 
 import pl.pwr.student.gogame.model.board.Board;
 
@@ -11,5 +11,10 @@ public class RedrawBoard implements GUICommand {
 
     public Board getBoard() {
         return this.b;
+    }
+
+    @Override
+    public String toString() {
+        return this.b.toString();
     }
 }

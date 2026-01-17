@@ -1,4 +1,4 @@
-package pl.pwr.student.gogame.client.board;
+package pl.pwr.student.gogame.client.board.GUICommands;
 
 public class Say implements GUICommand {
     private String message;

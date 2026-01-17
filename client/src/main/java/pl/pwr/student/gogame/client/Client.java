@@ -27,10 +27,10 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 import pl.pwr.student.gogame.client.board.ConnectionManager;
-import pl.pwr.student.gogame.client.board.GUICommand;
-import pl.pwr.student.gogame.client.board.PutStone;
-import pl.pwr.student.gogame.client.board.RedrawBoard;
-import pl.pwr.student.gogame.client.board.Say;
+import pl.pwr.student.gogame.client.board.GUICommands.GUICommand;
+import pl.pwr.student.gogame.client.board.GUICommands.PutStone;
+import pl.pwr.student.gogame.client.board.GUICommands.RedrawBoard;
+import pl.pwr.student.gogame.client.board.GUICommands.Say;
 import pl.pwr.student.gogame.model.board.Board;
 import pl.pwr.student.gogame.model.board.Team;
 
@@ -38,6 +38,10 @@ public class Client extends Application {
   private ConnectionManager connMan;
   private Board board;
   private GridPane boardPane;
+
+  public void setBoard(Board b) {
+    this.board = b;
+  }
 
   /**
    * Tworzy pierwszy widok pokazywany przy uruchomieniu aplikacji
@@ -161,8 +165,10 @@ public class Client extends Application {
 
     Button send = new Button("Send");
 
-    send.setOnAction(e -> connMan.queueCommand(new Say(input.getText())));  // na przycisk Send
-    input.setOnAction(e -> connMan.queueCommand(new Say(input.getText()))); // na enter wysłanie
+    send.setOnAction(e -> {
+      connMan.queueCommand(new Say(input.getText())); 
+      sayInChat(input.getText());
+    });
 
     HBox inputBox = new HBox(8, input, send);
     inputBox.setPadding(new Insets(10));
@@ -181,54 +187,26 @@ public class Client extends Application {
     s.setTitle("GO");
     rootScene = new Scene(welcomeView());
     s.setScene(rootScene);
+    s.setMinWidth(800);
+    s.setMinHeight(600);
     s.show();
   }
 
   @Override
   public void start(Stage primaryStage) throws Exception {
     initGUI(primaryStage);
-
-    new Thread(this::awaitGUICommands).start();
   }
 
-  private final BlockingQueue<GUICommand> commands = new LinkedBlockingQueue<GUICommand>();
-  /**
-   * Zakolejkuj polecenie, które ma zostać zastosowane dla okienka
-   */
-  public void queueCommand(GUICommand cmd) {
-    commands.add(cmd);
-  }
-  private void awaitGUICommands() {
-    while (true) {
-      GUICommand cmd = null;
-      try {
-        cmd = commands.poll(1, TimeUnit.MINUTES);
-      } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-
-      if (cmd == null) {
-        // TODO: obsługa timeoutu metody .poll (?)
-      } else {
-        if (cmd instanceof RedrawBoard) {
-          this.board = ((RedrawBoard)cmd).getBoard();
-          Platform.runLater(() -> {
-            redrawBoard();
-          });
-        }
-      }
-
-      cmd = null;
-    }
-  }
-
-  private void redrawBoard() {
+  public void redrawBoard() {
     boardPane.getChildren().clear();
     for (int row = 1; row <= BOARD_SIZE; ++row) {
       for (int col = 1; col <= BOARD_SIZE; ++col) {
         boardPane.getChildren().add(createCell(row, col, board.getField(col, row).getTeam()));
       }
     }
+  }
+
+  public void sayInChat(String message) {
+    messagesBox.getChildren().add(new Label(message));
   }
 }

@@ -80,11 +80,7 @@ public class Client extends Application {
 
   private static final int CELL_SIZE = 40;
   // TODO: ustawianie z tego co przyszło po SIZE,
-  private static final int BOARD_SIZE = 11;
-
-  private int boardPositionToGridPaneIndex(int row, int col) {
-    return row * BOARD_SIZE + col;
-  }
+  private static final int BOARD_SIZE = 13;
 
   private Parent playingView() {
     BorderPane root = new BorderPane();

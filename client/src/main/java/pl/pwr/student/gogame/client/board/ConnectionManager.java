@@ -65,7 +65,7 @@ public class ConnectionManager extends Thread {
     }
 
     /**
-     * Kod wątku odbierającego polecenia od serwera - z klasy Client
+     * Kod wątku odbierającego polecenia od serwera
      */
     public void receive() {
         while (in.hasNextLine()) {
@@ -73,13 +73,14 @@ public class ConnectionManager extends Thread {
             if (serverCommand.startsWith("SIZE")) {
                 try {
                     parent.setBoard(Board.fromCSV(serverCommand));
+                    System.out.println(Board.fromCSV(serverCommand).toString());
                     Platform.runLater(parent::redrawBoard);
                 } catch (Exception e) {
                     System.out.println(e.getLocalizedMessage());
                 }
             } else if (serverCommand.startsWith("SAY")) {
                 String message = serverCommand.split(",")[1];
-                Platform.runLater(() -> parent.sayInChat("Serwer: " + message));
+                Platform.runLater(() -> parent.sayInChat(message));
             }
         }
     }

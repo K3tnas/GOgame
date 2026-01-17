@@ -11,6 +11,6 @@ public class PutStone implements GUICommand {
 
     @Override
     public String toString() {
-        return "PUT," + this.col + "," + this.row + ";";
+        return "PUT," + this.col + "," + this.row;
     }
 }

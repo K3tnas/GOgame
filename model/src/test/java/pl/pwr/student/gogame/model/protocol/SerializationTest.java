@@ -12,6 +12,9 @@ public class SerializationTest {
   @Test
   public void serialization() {
     Game g = setup();
+    g.putStone(1, 1, "0");
+    g.putStone(1, 2, "1");
+    g.putStone(2, 1, "0");
     String serialized = "";
     try {
       serialized = g.getGameInfo().board().toCSV();
@@ -24,8 +27,9 @@ public class SerializationTest {
 
   private static Game setup() {
     StandardGameBuilder gb = new StandardGameBuilder();
-    gb.addPlayer(new Player("asdf"));
-    gb.addPlayer(new Player("zxcv"));
+    gb.setSize(2);
+    gb.addPlayer(new Player("0"));
+    gb.addPlayer(new Player("1"));
     return gb.buildGame();
   }
 }

@@ -155,7 +155,7 @@ public class Board {
         for (int colIdx = 0; colIdx < boardSize; ++colIdx) {
           Team team = Team.EMPTY;
           for (Team t : Team.values()) {
-            if (t.name() == fields[colIdx]) {
+            if (t.name().equals(fields[colIdx])) {
               team = t;
             }
           }

@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 
 import pl.pwr.student.gogame.model.Game;
 import pl.pwr.student.gogame.model.builder.StandardGameBuilder;
+import pl.pwr.student.gogame.model.states.BlackTurn;
 import pl.pwr.student.gogame.model.utilities.Player;
 
 public class Server {
@@ -33,6 +34,11 @@ public class Server {
         pool.execute(user2);
       }
     }
+  }
+
+  private void broadcastMessage(String msg) {
+    user1.output.println(msg);
+    user2.output.println(msg);
   }
 
   class User extends Player implements Runnable {
@@ -68,10 +74,15 @@ public class Server {
       }
     }
 
+    private void sendBoard() {
+      broadcastMessage(game.getGameInfo().board().toCSV());
+    }
+
     private void setup() {
       gb.addPlayer(this);
       try {
         game = gb.buildGame();
+        sendBoard();
       } catch (RuntimeException e) {
         output.println("SAY,Oczekiwanie na dołączenie drugiego gracza...");
       }
@@ -81,9 +92,33 @@ public class Server {
       while (input.hasNextLine()) {
         String request = input.nextLine();
         System.out.println(this + ": " + request);
+        String[] requestArgs = request.split(",");
+
+        switch (requestArgs[0]) {
+          case "PUT":
+            Integer x = Integer.parseInt(requestArgs[1]) + 1;
+            Integer y = Integer.parseInt(requestArgs[2]) + 1;
+            game.putStone(x, y, getId());
+            break;
+          
+          case "PASS":
+            game.pass(getId());
+            break;
+
+          case "SURRENDER":
+            game.surrender(getId());
+            break;
+        
+          default:
+            System.out.println("Nieznane polecenie: " + request);
+            break;
+        }
+
+        System.out.println(game.getGameInfo().board().toString());
+        System.out.println(game.getGameInfo().board().toCSV());
 
         if (game != null) {
-          output.println(game.getGameInfo().board().toCSV());
+          sendBoard();
         }
       }
     }

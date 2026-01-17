@@ -9,6 +9,6 @@ public class Say implements GUICommand {
 
     @Override
     public String toString() {
-        return "SAY," + message + ";";
+        return "SAY," + message;
     }
 }

@@ -1,7 +1,5 @@
 package pl.pwr.student.gogame.model.board;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 
@@ -133,10 +131,10 @@ public class Board {
     // zapis planszy
     for (int y = 1; y <= size; y++) {
       for (int x = 1; x <= size; x++) {
-          sb.append(getField(x, y).getTeam().name());
-          if (x < size) {
-            sb.append(",");
-          }
+        sb.append(getField(x, y).getTeam().name());
+        if (x < size) {
+          sb.append(",");
+        }
       }
       sb.append(";");
     }
@@ -154,7 +152,7 @@ public class Board {
     int boardSize = Integer.parseInt(sizeField.split(",")[1]);
     Board b = new Board(boardSize);
     for (int rowIdx = 0; rowIdx < boardSize; ++rowIdx) {
-      String row = csvFields[rowIdx+1]; // +1 bo pierwsze csvField jest postaci SIZE,x;
+      String row = csvFields[rowIdx + 1]; // +1 bo pierwsze csvField jest postaci SIZE,x;
     }
     return b;
   }

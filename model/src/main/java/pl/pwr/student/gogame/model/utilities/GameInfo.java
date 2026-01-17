@@ -8,4 +8,5 @@ public record GameInfo(
     Ruleset ruleset,
     Player whitePlayer,
     Player blackPlayer,
-    PassHistory passHistory) {}
+    PassHistory passHistory,
+    ProposedDeadFields pdf) {}

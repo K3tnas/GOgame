@@ -10,6 +10,7 @@ import pl.pwr.student.gogame.model.rules.concreteRules.YouShallPlaceStoneOnEmpty
 import pl.pwr.student.gogame.model.rules.concreteRules.YouShallRespectKo;
 import pl.pwr.student.gogame.model.utilities.GameInfo;
 import pl.pwr.student.gogame.model.utilities.PassHistory;
+import pl.pwr.student.gogame.model.utilities.ProposedDeadFields;
 
 public class StandardGameBuilder extends GameBuilder {
 
@@ -44,9 +45,13 @@ public class StandardGameBuilder extends GameBuilder {
     }
 
     if (rand.nextInt() % 2 == 1) {
-      return new Game(new GameInfo(new Board(boardWidth), ruleset, p1, p2, new PassHistory()));
+      return new Game(
+          new GameInfo(
+              new Board(boardWidth), ruleset, p1, p2, new PassHistory(), new ProposedDeadFields()));
     }
 
-    return new Game(new GameInfo(new Board(boardWidth), ruleset, p2, p1, new PassHistory()));
+    return new Game(
+        new GameInfo(
+            new Board(boardWidth), ruleset, p2, p1, new PassHistory(), new ProposedDeadFields()));
   }
 }

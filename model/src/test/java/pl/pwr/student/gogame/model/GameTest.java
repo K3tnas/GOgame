@@ -1,12 +1,14 @@
 package pl.pwr.student.gogame.model;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import pl.pwr.student.gogame.model.board.Board;
 import pl.pwr.student.gogame.model.board.Team;
 import pl.pwr.student.gogame.model.builder.StandardGameBuilder;
+import pl.pwr.student.gogame.model.states.BlackPlayerWon;
 import pl.pwr.student.gogame.model.states.BlackTurn;
 import pl.pwr.student.gogame.model.states.WhitePlayerWon;
 import pl.pwr.student.gogame.model.states.WhiteTurn;
@@ -120,13 +122,59 @@ public class GameTest {
     g.pass(bit);
 
     System.out.println(g.getGameState());
+    g.acceptProposition(wit);
+    g.acceptProposition(bit);
     assertTrue(g.getGameState() instanceof WhitePlayerWon);
   }
 
-  private Game setup() {
+  @Test
+  public void ChooseCorrectWinnerTest() {
+    final Game g = setup(7);
+    final Board b = g.getGameInfo().board();
+    final String wit = g.getGameInfo().whitePlayer().getId();
+    final String bit = g.getGameInfo().blackPlayer().getId();
+
+    int[][] black = {
+      {6, 1}, {6, 2}, {3, 3}, {4, 3}, {5, 3}, {5, 4}, {4, 5}, {6, 5}, {4, 6}, {5, 6}, {3, 7}, {4, 7}
+    };
+    int[][] white = {
+      {2, 1}, {5, 1}, {1, 2}, {3, 2}, {4, 2}, {5, 2}, {2, 3}, {3, 4}, {4, 4}, {2, 5}, {3, 5},
+      {1, 6}, {3, 6}, {2, 7}
+    };
+
+    for (int[] p : black) {
+      b.getField(p[0], p[1]).setTeam(Team.BLACK);
+    }
+
+    for (int[] p : white) {
+      b.getField(p[0], p[1]).setTeam(Team.WHITE);
+    }
+
+    System.out.println(b);
+    g.pass(wit);
+    g.pass(bit);
+    g.acceptProposition(wit);
+    g.acceptProposition(bit);
+
+    System.out.println(g.getGameState());
+    assertSame(10, g.getGameInfo().whitePlayer().getCaptives());
+    assertSame(13, g.getGameInfo().blackPlayer().getCaptives());
+    assertTrue(g.getGameState() instanceof BlackPlayerWon);
+  }
+
+  private static Game setup() {
     StandardGameBuilder gb = new StandardGameBuilder();
     gb.addPlayer(new Player("asdf"));
     gb.addPlayer(new Player("zxcv"));
+    Game g = gb.buildGame();
+    return g;
+  }
+
+  private static Game setup(int size) {
+    StandardGameBuilder gb = new StandardGameBuilder();
+    gb.addPlayer(new Player("asdf"));
+    gb.addPlayer(new Player("zxcv"));
+    gb.setSize(size);
     Game g = gb.buildGame();
     return g;
   }

@@ -14,22 +14,34 @@ public class Game {
   }
 
   public GameState getGameState() {
-    return this.gameState;
+    return gameState;
   }
 
   public GameInfo getGameInfo() {
-    return this.gameInfo;
+    return gameInfo;
   }
 
   public void pass(String playerId) {
-    this.gameState = gameState.pass(playerId);
+    gameState = gameState.pass(playerId);
   }
 
   public void putStone(int x, int y, String playerId) {
-    this.gameState = gameState.putStone(x, y, playerId);
+    gameState = gameState.putStone(x, y, playerId);
   }
 
   public void surrender(String playerId) {
-    this.gameState = gameState.surrender(playerId);
+    gameState = gameState.surrender(playerId);
+  }
+
+  public void proposeDeadField(int x, int y, String playerId) {
+    gameState = gameState.proposeDeadField(x, y, playerId);
+  }
+
+  public void acceptProposition(String playerId) {
+    gameState = gameState.acceptProposition(playerId);
+  }
+
+  public void declineProposition(String playerId) {
+    gameState = gameState.declineProposition(playerId);
   }
 }

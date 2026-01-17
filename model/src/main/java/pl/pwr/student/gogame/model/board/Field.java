@@ -4,7 +4,7 @@ import com.sun.jdi.request.InvalidRequestStateException;
 import java.util.HashSet;
 import java.util.Set;
 
-/** Field */
+/** Class representing a field in a game of GO */
 public class Field {
 
   private Team team;
